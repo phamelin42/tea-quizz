@@ -25,7 +25,7 @@ export interface Product {
   readonly asin: string;
   /** Composition recopiée de la fiche du fabricant. */
   readonly ingredients: readonly string[];
-  /** Vrai si le produit contient des arômes ou des ajouts. */
+  /** Vrai dès qu’une saveur est ajoutée au thé ou à la plante (arôme, épice, fruit, fleur, morceaux). */
   readonly flavoured: boolean;
   readonly sourceUrl: string;
   /** Date de validation du lien par Phil (AAAA-MM-JJ). */
@@ -49,7 +49,8 @@ export interface Product {
 
 - Un produit rattaché à une infusion (`HerbalTea`) ne contient pas `Camellia sinensis` et n'a pas de caféine ; un produit rattaché à un thé (`LeafTea`) en contient.
 - Règle de la caféine : « Aucune », ou le soir sans la rechercher, n'affiche que des produits d'infusions.
-- Un thé « pur » (étiquette `pure`) n'a pas `flavoured: true`.
+- `flavoured` veut dire « avec de la saveur » (décision de Phil du 20/10/2026) : vrai dès qu'une saveur est ajoutée au thé ou à la plante (arôme, épice, fruit, fleur, morceaux), pas seulement un arôme. Un thé `flavoured: false` n'a qu'un ingrédient, le thé lui-même (« bio », `*` et qualificatif entre parenthèses tolérés) ; aucun produit `flavoured: false` n'annonce d'arôme ni, pour un thé, d'épice, de fruit ou de fleur. Un chai est toujours `flavoured: true` : sans épices, ce n'est pas un chai.
+- Un thé « pur » (étiquette `pure`) n'a pas `flavoured: true`, sauf le chai, aromatisé par nature : sans cette exception, la carte « pur » n'afficherait jamais de chai.
 - Un nouveau contrôle de `profile.spec.ts` relit les textes de `content.ts` et de `profile.ts` : aucune marque du catalogue n'y apparaît, les marques ne vivent que dans `products.ts`.
 - Les mots interdits (« bienfaits », « détox »…) restent interdits dans tous les textes, produits compris.
 - L'ASIN respecte `^[A-Z0-9]{10}$` ; chaque produit a une source en `https://` et une date ; les `id` sont uniques ; le tag d'affiliation apparaît une fois par lien, seul `amazon.fr` est un hôte de lien produit.

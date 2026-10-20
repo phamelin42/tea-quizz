@@ -47,6 +47,8 @@ export interface TeaCard {
   readonly texture: string;
   readonly text: string;
   readonly note?: string;
+  /** Le thé ou l’infusion illustré ; absent sur le matériel, qui n’a pas de produit. */
+  readonly tea?: TeaKey;
   /** À chercher sur l’étiquette. */
   readonly labels: readonly string[];
 }
@@ -231,6 +233,7 @@ export function teas(profile: Profile): TeaCard[] {
       texture: content.flavour,
       text: content.why,
       note: content.note,
+      tea,
       labels: content.labels,
     };
   };

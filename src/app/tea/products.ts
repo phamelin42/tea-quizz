@@ -36,6 +36,13 @@ export const PRODUCT_CATALOGUE = new InjectionToken<readonly Product[]>('PRODUCT
   factory: () => CATALOGUE,
 });
 
+/**
+ * Les thés dont la recette est un mélange : sans épices, ce ne serait pas un chai. Ils sont donc
+ * « avec de la saveur » par nature, et la carte « pur » (qui écarte les produits aromatisés pour
+ * montrer le thé lui-même) ne doit pas les écarter, sans quoi elle ne montrerait jamais de chai.
+ */
+const NATURALLY_FLAVOURED: readonly TeaKey[] = ['chai'];
+
 const MAX_EXAMPLES = 3;
 const ASIN = /^[A-Z0-9]{10}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -101,7 +108,7 @@ export function examplesFor(
   return catalogue
     .filter((item) => item.tea === card.tea)
     .filter((item) => profile.caffeine !== 'none' || !TEAS[item.tea].caffeine)
-    .filter((item) => !pure || !item.flavoured)
+    .filter((item) => !pure || !item.flavoured || NATURALLY_FLAVOURED.includes(item.tea))
     .slice(0, MAX_EXAMPLES);
 }
 

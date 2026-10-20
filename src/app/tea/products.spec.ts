@@ -1,5 +1,5 @@
 import { TEAS, type TeaKey } from './content';
-import { FIXTURE_CATALOGUE } from './products.fixture';
+import { FIXTURE_CATALOGUE, FLAVOURED_GREEN } from './products.fixture';
 import {
   AFFILIATE_NOTICE,
   AFFILIATE_TAG,
@@ -242,6 +242,24 @@ describe('examplesFor', () => {
     };
     const found = examplesFor(cardFor('black'), LEAF_PROFILE, [flavoured, product('black')]);
     expect(found.map((item) => item.id)).toEqual(['exemple-black']);
+  });
+
+  it('garde le chai, aromatisé par nature, même quand le repère « pur » est affiché', () => {
+    expect(labelHints(LEAF_PROFILE).map((hint) => hint.key)).toContain('pure');
+    expect(product('chai').flavoured).toBe(true);
+    const found = examplesFor(cardFor('chai'), LEAF_PROFILE, FIXTURE_CATALOGUE);
+    expect(found.map((item) => item.id)).toEqual(['exemple-chai']);
+  });
+
+  it('écarte toujours un thé vert aromatisé d’une carte de thé vert « pur »', () => {
+    const found = examplesFor(cardFor('green'), LEAF_PROFILE, [FLAVOURED_GREEN, product('green')]);
+    expect(found.map((item) => item.id)).toEqual(['exemple-green']);
+    expect(examplesFor(cardFor('green'), LEAF_PROFILE, [FLAVOURED_GREEN])).toEqual([]);
+  });
+
+  it('ne fait pas du chai une exception pour un autre thé : un thé noir aromatisé reste écarté', () => {
+    const flavouredBlack: Product = { ...product('black'), id: 'noir-aromatise', flavoured: true };
+    expect(examplesFor(cardFor('black'), LEAF_PROFILE, [flavouredBlack])).toEqual([]);
   });
 
   it('garde les produits aromatisés quand le repère « pur » n’est pas affiché', () => {

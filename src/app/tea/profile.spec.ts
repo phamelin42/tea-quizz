@@ -364,6 +364,10 @@ describe('exemples de produits', () => {
     let profiles = 0;
     let teaCards = 0;
     let withExamples = 0;
+    // Des compteurs pour que les gardes-fous ne passent pas à vide : chacun doit être atteint.
+    let pureProfiles = 0;
+    let pureTeaCards = 0;
+    let chaiCards = 0;
     for (const combination of everyAnswers()) {
       const profile = analyse(combination);
       const signature = JSON.stringify(profile);
@@ -371,6 +375,7 @@ describe('exemples de produits', () => {
       seen.add(signature);
       profiles++;
       const pure = labelHints(profile).some((hint) => hint.key === 'pure');
+      if (pure) pureProfiles++;
       for (const card of teas(profile)) {
         const examples = examplesFor(card, profile, catalogue);
         const fail = (reason: string) => {
@@ -384,6 +389,13 @@ describe('exemples de produits', () => {
         if (examples.length > 0) withExamples++;
         else fail('aucun exemple alors que la fixture couvre chaque type');
         if (examples.length > 3) fail('plus de trois exemples');
+        if (pure && card.tea !== 'chai') pureTeaCards++;
+        if (card.tea === 'chai') {
+          // Le chai est aromatisé par nature : « pur » ou non, on le montre avec ses épices.
+          chaiCards++;
+          if (!examples.some((example) => example.flavoured))
+            fail('le chai n’est pas montré avec ses épices');
+        }
         for (const example of examples) {
           if (example.tea !== card.tea) fail(`${example.id} illustre un autre type`);
           if (HERBALS.includes(example.tea)) {
@@ -393,7 +405,9 @@ describe('exemples de produits', () => {
           } else if (profile.caffeine === 'none') {
             fail(`${example.id} : un thé est proposé sans caféine`);
           }
-          if (pure && example.flavoured) fail(`${example.id} : aromatisé pour un thé pur`);
+          if (pure && example.flavoured && example.tea !== 'chai') {
+            fail(`${example.id} : aromatisé pour un thé pur`);
+          }
         }
       }
     }
@@ -401,5 +415,20 @@ describe('exemples de produits', () => {
     expect(profiles).toBeGreaterThan(1);
     expect(teaCards).toBeGreaterThanOrEqual(profiles * 2);
     expect(withExamples).toBe(teaCards);
+    expect(pureProfiles).toBeGreaterThan(0);
+    expect(pureTeaCards).toBeGreaterThan(0);
+    expect(chaiCards).toBeGreaterThan(0);
   }, 120_000);
+
+  it('écarte un thé quand la caféine est écartée, indépendamment du repère « pur »', () => {
+    // Aucun profil réel n’associe un thé à « aucune caféine » : la carte est fabriquée pour isoler ce filtre.
+    const none = analyse(answers({ caffeine: 'none' }));
+    const regular = analyse(answers({ moment: 'morning', caffeine: 'love' }));
+    expect(none.caffeine).toBe('none');
+    expect(labelHints(none).some((hint) => hint.key === 'pure')).toBe(false);
+    const green = { ...teas(regular)[0], tea: 'green' as const };
+    const item = FIXTURE_CATALOGUE.find((candidate) => candidate.tea === 'green')!;
+    expect(examplesFor(green, regular, [item])).toEqual([item]);
+    expect(examplesFor(green, none, [item])).toEqual([]);
+  });
 });

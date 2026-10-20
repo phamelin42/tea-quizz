@@ -1,0 +1,19 @@
+<p class="app-label">Exemples sur Amazon</p>
+<ul class="app-examples__list">
+  @for (product of products(); track product.id) {
+    <li>
+      <a
+        class="app-examples__link"
+        [href]="url(product)"
+        target="_blank"
+        rel="sponsored noopener noreferrer"
+      >
+        {{ product.name }}<span class="fd-sr"> (nouvel onglet)</span>
+      </a>
+      <span class="app-examples__brand">{{ product.brand }}</span>
+      <span class="app-examples__composition"
+        >Composition&nbsp;: {{ product.ingredients.join(', ') }}</span
+      >
+    </li>
+  }
+</ul>

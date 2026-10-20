@@ -84,8 +84,8 @@
     <header>
       <h2 id="h-teas">Les thés et le matériel qui correspondent</h2>
       <p>
-        Des types de thés et d’infusions, sans marque. Comparez les listes d’ingrédients de ceux que
-        vous trouvez en magasin.
+        Des types de thés et d’infusions. Comparez les listes d’ingrédients de ceux que vous trouvez
+        en magasin.
       </p>
     </header>
     <div class="app-grid">
@@ -107,9 +107,15 @@
               </li>
             }
           </ul>
+          @if (tea.examples.length > 0) {
+            <app-examples slot="actions" [products]="tea.examples" />
+          }
         </article>
       }
     </div>
+    @if (v.affiliate) {
+      <p class="app-note">{{ v.notice }} {{ v.note }}</p>
+    }
   </section>
 
   <fd-alert tone="info" title="Ceci n’est pas un avis médical">

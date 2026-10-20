@@ -1,6 +1,6 @@
 # Tea Quizz
 
-Votre thé en 10 questions : le type de thé ou d’infusion qui correspond à vos envies, sa préparation, les repères à vérifier sur le paquet et le matériel utile, sans marque. Site : <https://tea-quizz.phamelin.fr>, construit avec le design system [Fuda](https://github.com/phamelin42/design-system-fuda).
+Votre thé en 10 questions : le type de thé ou d’infusion qui correspond à vos envies, sa préparation, les repères à vérifier sur le paquet et le matériel utile. Site : <https://tea-quizz.phamelin.fr>, construit avec le design system [Fuda](https://github.com/phamelin42/design-system-fuda).
 
 ## Démarrer
 

@@ -38,7 +38,7 @@ export interface Product {
 
 ## Affichage (`result.html`)
 
-- Sous chaque carte de thé : un bloc « Exemples sur Amazon » avec nom, marque, une ligne de composition et un lien.
+- Une carte porte la clé `tea` du thé qu'elle illustre ; sous chaque carte de thé : un bloc « Exemples sur Amazon » avec nom, marque, une ligne de composition et un lien.
 - Liens `target="_blank"` `rel="sponsored noopener noreferrer"`, annoncés « (nouvel onglet) ».
 - Carte sans produit validé : aucun bloc, ni vide ni factice.
 - Dès qu'au moins un lien est affiché : mention visible « En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises. » et précision que ce sont des exemples dont la composition correspond, pas un classement.
@@ -50,7 +50,7 @@ export interface Product {
 - Un produit rattaché à une infusion (`HerbalTea`) ne contient pas `Camellia sinensis` et n'a pas de caféine ; un produit rattaché à un thé (`LeafTea`) en contient.
 - Règle de la caféine : « Aucune », ou le soir sans la rechercher, n'affiche que des produits d'infusions.
 - Un thé « pur » (étiquette `pure`) n'a pas `flavoured: true`.
-- Le contrôle de marque existant de `profile.spec.ts` est remplacé : les marques ne sont permises que dans `products.ts`, jamais dans `content.ts`.
+- Un nouveau contrôle de `profile.spec.ts` relit les textes de `content.ts` et de `profile.ts` : aucune marque du catalogue n'y apparaît, les marques ne vivent que dans `products.ts`.
 - Les mots interdits (« bienfaits », « détox »…) restent interdits dans tous les textes, produits compris.
 - L'ASIN respecte `^[A-Z0-9]{10}$` ; chaque produit a une source en `https://` et une date ; les `id` sont uniques ; le tag d'affiliation apparaît une fois par lien, seul `amazon.fr` est un hôte de lien produit.
 

@@ -40,10 +40,14 @@ const MAX_EXAMPLES = 3;
 const ASIN = /^[A-Z0-9]{10}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 /**
- * Une infusion n’a pas de théine : tout ce qui évoque le théier la disqualifie. Les bornes sont des
- * lookarounds Unicode, car `\b` ne voit pas « é » comme une lettre et manquerait « Thé vert ».
+ * Une infusion n’a ni théine ni caféine : tout ce qui évoque le théier, ou une autre plante à
+ * caféine (maté, guarana, guayusa, kola, café, yaupon), la disqualifie, sans quoi `examplesFor` la
+ * montrerait à qui a écarté la caféine. Les bornes sont des lookarounds Unicode, car `\b` ne voit
+ * pas « é » comme une lettre et manquerait « Thé vert » ; elles évitent aussi « Menthe », « Mathéo »,
+ * « Chocolat » ou « Décaféiné ».
  */
-const TEA_IN_HERBAL = /camellia|(?<!\p{L})th[ée](?!\p{L})|(?<!\p{L})tea(?!\p{L})/iu;
+const TEA_IN_HERBAL =
+  /camellia|caf[ée]ine|caffeine|(?<!\p{L})(?:th[ée]|tea|mat[ée]|yerba|guaran[aá]|guayusa|[ck]ola|caf[ée]|coffee|yaupon)(?!\p{L})/iu;
 /** Mêmes bornes que ci-dessus : sans elles, « Menthe » (« nthe ») passerait pour du thé. */
 const TEA_IN_LEAF = /camellia|(?<!\p{L})th[ée](?!\p{L})|(?<!\p{L})tea(?!\p{L})|matcha|pu-?erh/iu;
 
@@ -80,7 +84,7 @@ export function catalogueDefects(catalogue: readonly Product[]): string[] {
         defects.push(`${where} : un thé doit contenir du thé`);
       }
     } else if (item.ingredients.some((ingredient) => TEA_IN_HERBAL.test(ingredient))) {
-      defects.push(`${where} : une infusion ne contient pas de thé`);
+      defects.push(`${where} : une infusion ne contient ni thé ni plante à caféine`);
     }
   }
   return defects;

@@ -135,6 +135,38 @@ describe('catalogueDefects', () => {
     }
   });
 
+  it('signale une infusion dont la composition contient une autre plante à caféine', () => {
+    for (const ingredient of [
+      'Maté vert',
+      'Mate',
+      'Yerba maté',
+      'Guarana',
+      'Guaraná',
+      'Guayusa',
+      'Noix de kola',
+      'Cola',
+      'Café vert',
+      'Coffee cherry',
+      'Yaupon',
+      'Caféine',
+      'Caffeine',
+    ]) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'fruit', ingredients: ['Hibiscus', ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining('infusion')]);
+    }
+  });
+
+  it('ne prend pas un mot voisin pour une plante à caféine dans une infusion', () => {
+    for (const ingredient of ['Menthe poivrée', 'Camomille', 'Chocolat', 'Décaféiné', 'Mathéo']) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'fruit', ingredients: ['Hibiscus', ingredient] })),
+        ingredient,
+      ).toEqual([]);
+    }
+  });
+
   it('ne prend pas un mot qui contient « thé » pour du thé dans une infusion', () => {
     expect(
       catalogueDefects(withFirst({ tea: 'mint', ingredients: ['Menthe poivrée', 'Mathéo'] })),

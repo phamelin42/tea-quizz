@@ -1,6 +1,14 @@
 import { FAMILIES, GEARS, LABEL_TIPS, START_ADVICE, TEAS, type TeaKey } from './content';
 import { analyse, type Answers, gearFor, labelHints, ritual, teas } from './profile';
-import { CATALOGUE, catalogueDefects, examplesFor, mentionsBrand, type Product } from './products';
+import {
+  AFFILIATE_NOTICE,
+  CATALOGUE,
+  catalogueDefects,
+  EXAMPLES_NOTE,
+  examplesFor,
+  mentionsBrand,
+  type Product,
+} from './products';
 import { FIXTURE_CATALOGUE } from './products.fixture';
 import { type QuestionId, QUESTIONS } from './questions';
 
@@ -27,6 +35,15 @@ function* everyAnswers(index = 0, prefix: number[] = []): Generator<Answers> {
 }
 
 const HERBALS: readonly TeaKey[] = ['rooibos', 'chamomile', 'mint', 'verbena', 'fruit'];
+
+/** Promesses de santé et vocabulaire médical, interdits dans tous les textes, produits compris. */
+const PROMISES =
+  /guéri|soign|détox|minceur|maigr|brûle|prévient|immun|anticancér|vertu|miracle|bienfait/i;
+
+/** Ce qu’un produit affiche : son nom, sa marque et sa composition. */
+function catalogueTexts(catalogue: readonly Product[]): string[] {
+  return catalogue.flatMap((item) => [item.name, item.brand, ...item.ingredients]);
+}
 
 describe('contenu', () => {
   it('range chaque thé dans la bonne famille, avec ou sans caféine', () => {
@@ -282,12 +299,11 @@ describe('thés et rituel', () => {
       ...Object.values(GEARS).map((gear) => gear.text),
       ...Object.values(LABEL_TIPS).map((tip) => tip.why),
       ...Object.values(START_ADVICE),
+      ...catalogueTexts(CATALOGUE),
+      AFFILIATE_NOTICE,
+      EXAMPLES_NOTE,
     ];
-    const promises = everyText.filter((text) =>
-      /guéri|soign|détox|minceur|maigr|brûle|prévient|immun|anticancér|vertu|miracle|bienfait/i.test(
-        text,
-      ),
-    );
+    const promises = everyText.filter((text) => PROMISES.test(text));
     expect(promises).toEqual([]);
 
     // Les marques ne vivent que dans products.ts : ni le vrai catalogue ni la fixture ne fuient ici.
@@ -310,6 +326,21 @@ describe('exemples de produits', () => {
 
   it('le catalogue livré respecte les règles qui ne dépendent pas du profil', () => {
     expect(catalogueDefects(CATALOGUE)).toEqual([]);
+  });
+
+  it('relève une promesse de santé dans le nom ou la composition d’un produit', () => {
+    expect(catalogueTexts(FIXTURE_CATALOGUE).filter((text) => PROMISES.test(text))).toEqual([]);
+    for (const name of ['Infusion Détox citron', 'Thé minceur', 'Tisane aux bienfaits du soir']) {
+      const named = [{ ...FIXTURE_CATALOGUE[0], name }];
+      expect(
+        catalogueTexts(named).filter((text) => PROMISES.test(text)),
+        name,
+      ).toEqual([name]);
+    }
+    const composed = [{ ...FIXTURE_CATALOGUE[0], ingredients: ['Thé vert', 'Extrait détox'] }];
+    expect(catalogueTexts(composed).filter((text) => PROMISES.test(text))).toEqual([
+      'Extrait détox',
+    ]);
   });
 
   it('détecte une marque du catalogue dans un texte, quelle que soit la casse', () => {

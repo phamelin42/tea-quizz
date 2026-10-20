@@ -1,7 +1,7 @@
 {
   "name": "tea-quizz",
   "version": "0.0.0",
-  "description": "Quels sont les bienfaits de chaque thé ?",
+  "description": "Votre thé en 10 questions",
   "private": true,
   "engines": {
     "node": ">=22.22.3"
@@ -27,7 +27,7 @@
     "@angular/platform-browser": "^22.2.3",
     "@fontsource/dela-gothic-one": "^5.3.0",
     "@fontsource/zen-maru-gothic": "^5.3.1",
-    "fuda": "github:phamelin42/design-system-fuda#2111c2c21d2d59bd32c6ec798fe9f6d871b34637",
+    "@phamelin/fuda": "^0.1.0",
     "rxjs": "~7.8.2",
     "tslib": "^2.8.1"
   },

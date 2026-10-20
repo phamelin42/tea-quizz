@@ -1,5 +1,14 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
   <title>Tea Quizz</title>
-  <rect x="3" y="3" width="58" height="58" rx="14" fill="#F5B1C5" stroke="#5B5486" stroke-width="4"/>
-  <text x="32" y="42" text-anchor="middle" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#5B5486">TQ</text>
+  <!-- Tasse de thé aux couleurs du thème Jour de Fuda : disque kon, tasse sakura, vapeur tokiwa-soft. -->
+  <circle cx="48" cy="48" r="44" fill="#5B5486"/>
+  <g fill="none" stroke="#E2F3EA" stroke-width="3.5" stroke-linecap="round">
+    <path d="M39 38 C34 32 44 28 39 21"/>
+    <path d="M52 38 C47 32 57 28 52 21"/>
+  </g>
+  <path d="M22 46 H71 C71 63 61 73 46.5 73 C32 73 22 63 22 46 Z" fill="#F5B1C5"/>
+  <path d="M70 50 C82 49 82 64 68 65" fill="none" stroke="#F5B1C5" stroke-width="4.5" stroke-linecap="round"/>
+  <rect x="28" y="75" width="37" height="4.5" rx="2.25" fill="#F5B1C5"/>
+  <path d="M30 51 H63" stroke="#E66B72" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="48" cy="48" r="45.5" fill="none" stroke="#5B5486" stroke-width="3"/>
 </svg>

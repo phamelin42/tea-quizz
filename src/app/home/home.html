@@ -1,0 +1,20 @@
+<div class="app-home__text">
+  <h1 #heading tabindex="-1">Votre thé, en 10&nbsp;questions</h1>
+  <p class="app-lead">
+    Répondez en un geste à quelques questions sur vos envies et vos habitudes. Vous obtenez le type
+    de thé ou d’infusion qui vous correspond, sa préparation, ce qu’il faut repérer sur le paquet et
+    le matériel utile.
+  </p>
+  <ul class="app-facts">
+    <li><fd-badge tone="tokiwa" soft>10 questions</fd-badge></li>
+    <li><fd-badge tone="asagi" soft>Environ 2 minutes</fd-badge></li>
+    <li><fd-badge tone="sakura" soft>Rien n’est enregistré</fd-badge></li>
+  </ul>
+  <button fdButton variant="primary" size="lg" type="button" (click)="quiz.start()">
+    Commencer
+  </button>
+</div>
+<div fdCard class="app-fuda" sky="tokiwa" emblem="cho" aria-hidden="true">
+  <span slot="title">Votre tasse sur mesure</span>
+  <span slot="meta">Thé · Infusion · Préparation</span>
+</div>

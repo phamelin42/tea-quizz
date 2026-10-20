@@ -81,7 +81,7 @@ describe('catalogueDefects', () => {
   });
 
   it('signale un ASIN en minuscules', () => {
-    expect(catalogueDefects(withFirst({ asin: 'b0testtea01' }))).toEqual([
+    expect(catalogueDefects(withFirst({ asin: 'b0testte01' }))).toEqual([
       expect.stringContaining('ASIN'),
     ]);
   });
@@ -145,6 +145,30 @@ describe('catalogueDefects', () => {
     expect(catalogueDefects(withFirst({ tea: 'green', ingredients: ['Rooibos'] }))).toEqual([
       expect.stringContaining('thé'),
     ]);
+  });
+
+  it('ne prend pas un mot qui contient « thé » pour du thé, comme « menthe »', () => {
+    for (const ingredient of ['Menthe poivrée', 'Menthe']) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'green', ingredients: [ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining('thé')]);
+    }
+  });
+
+  it('reconnaît comme thé les compositions usuelles', () => {
+    for (const ingredient of [
+      'Thé noir',
+      'Thé pu-erh',
+      'Camellia sinensis',
+      'Matcha',
+      'Green tea',
+    ]) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'black', ingredients: [ingredient] })),
+        ingredient,
+      ).toEqual([]);
+    }
   });
 
   it('accepte matcha et pu-erh comme thés', () => {

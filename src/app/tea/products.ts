@@ -44,7 +44,8 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
  * lookarounds Unicode, car `\b` ne voit pas « é » comme une lettre et manquerait « Thé vert ».
  */
 const TEA_IN_HERBAL = /camellia|(?<!\p{L})th[ée](?!\p{L})|(?<!\p{L})tea(?!\p{L})/iu;
-const TEA_IN_LEAF = /camellia|th[ée]|\btea\b|matcha|pu-?erh/i;
+/** Mêmes bornes que ci-dessus : sans elles, « Menthe » (« nthe ») passerait pour du thé. */
+const TEA_IN_LEAF = /camellia|(?<!\p{L})th[ée](?!\p{L})|(?<!\p{L})tea(?!\p{L})|matcha|pu-?erh/iu;
 
 export function amazonUrl(asin: string): string {
   return `https://www.amazon.fr/dp/${asin}?tag=${AFFILIATE_TAG}`;

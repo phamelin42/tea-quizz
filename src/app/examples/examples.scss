@@ -5,13 +5,17 @@
 }
 .app-examples__list {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: var(--space-3);
   margin: var(--space-2) 0 0;
   padding: 0;
   list-style: none;
 }
+// Une colonne `1fr` prend la largeur du plus long mot (min-width: auto) : sans `minmax(0, 1fr)` sur la liste
+// et sur chaque `li`, un nom, une marque ou une composition sans coupure élargit les enfants au-delà de la carte.
 .app-examples__list li {
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   min-width: 0;
 }
 // Lien souligné et de 44 px minimum : la couleur ne porte pas seule l'information.
@@ -36,5 +40,6 @@
 .app-examples__composition {
   color: var(--ink-muted);
   font: 500 14px/22px var(--font-text);
+  overflow-wrap: anywhere;
   text-wrap: pretty;
 }

@@ -208,6 +208,119 @@ describe('catalogueDefects', () => {
     expect(catalogueDefects(withFirst({ tea: 'puerh', ingredients: ['Pu-erh'] }))).toEqual([]);
     expect(catalogueDefects(withFirst({ tea: 'puerh', ingredients: ['Puerh'] }))).toEqual([]);
   });
+
+  it('signale un chai qui n’est pas « avec de la saveur » : sans épices, ce n’est pas un chai', () => {
+    expect(product('chai').flavoured).toBe(true);
+    expect(
+      catalogueDefects([{ ...product('chai'), flavoured: false, ingredients: ['Thé noir'] }]),
+    ).toEqual([expect.stringContaining('chai')]);
+    expect(catalogueDefects([product('chai')])).toEqual([]);
+  });
+
+  it('signale un thé sans saveur ajoutée dont la composition a plusieurs ingrédients', () => {
+    expect(
+      catalogueDefects(withFirst({ ingredients: ['Thé vert sencha', 'Sucre de canne'] })),
+    ).toEqual([expect.stringContaining('ingrédient')]);
+    // Le même thé écrit deux fois ne fait pas deux ingrédients.
+    expect(
+      catalogueDefects(withFirst({ tea: 'black', ingredients: ['Thé noir', 'Thé noir*'] })),
+    ).toEqual([]);
+  });
+
+  it('tolère « bio », l’astérisque et un qualificatif entre parenthèses sur un thé seul', () => {
+    for (const ingredients of [
+      ['Thé vert bio'],
+      ['Thé vert*'],
+      ['Thé vert (Chine)'],
+      ['Thé vert bio (Chine)*'],
+      ['Thé vert*', '*issu de l’agriculture biologique'],
+      ['Thé vert', 'bio'],
+    ]) {
+      expect(catalogueDefects(withFirst({ ingredients })), ingredients.join(', ')).toEqual([]);
+    }
+  });
+
+  it('accepte un thé aromatisé qui a plusieurs ingrédients', () => {
+    expect(catalogueDefects([FLAVOURED_GREEN])).toEqual([]);
+  });
+
+  it('signale un thé « sans saveur » dont la composition évoque un arôme, une épice, un fruit ou une fleur', () => {
+    for (const ingredient of [
+      'Arôme naturel',
+      'Arômes',
+      'Aroma',
+      'Natural flavour',
+      'Flavor',
+      'Saveur vanille',
+      'Cannelle',
+      'Cardamome',
+      'Gingembre',
+      'Clou de girofle',
+      'Vanille',
+      'Bergamote',
+      'Zeste de citron',
+      'Écorces d’orange',
+      'Morceaux de fruits',
+      'Pétales de rose',
+      'Fleurs de souci',
+      'Menthe',
+      'Jasmin',
+      'Épices',
+    ]) {
+      expect(
+        catalogueDefects(withFirst({ ingredients: ['Thé vert', ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining('saveur')]);
+    }
+  });
+
+  it('signale un thé « sans saveur » dont l’unique ingrédient porte déjà une saveur', () => {
+    for (const ingredient of ['Thé vert à la bergamote', 'Thé noir vanille', 'Thé vert jasmin']) {
+      expect(catalogueDefects(withFirst({ ingredients: [ingredient] })), ingredient).toEqual([
+        expect.stringContaining('saveur'),
+      ]);
+    }
+  });
+
+  it('ne prend pas « Orange Pekoe », un grade de feuille, pour une orange ajoutée', () => {
+    expect(
+      catalogueDefects(withFirst({ tea: 'black', ingredients: ['Thé noir Assam Orange Pekoe'] })),
+    ).toEqual([]);
+  });
+
+  it('ne signale qu’une fois un thé « sans saveur » qui a un arôme et plusieurs ingrédients', () => {
+    expect(
+      catalogueDefects(withFirst({ ingredients: ['Thé vert', 'Arôme naturel de jasmin'] })),
+    ).toEqual([expect.stringContaining('saveur')]);
+  });
+
+  it('signale une infusion « sans saveur » dont la composition annonce un arôme', () => {
+    for (const ingredient of ['Arôme naturel', 'Arômes de vanille', 'Aroma', 'Flavouring']) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'fruit', ingredients: ['Hibiscus', ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining('saveur')]);
+    }
+  });
+
+  it('laisse à une infusion ses plantes, fruits et fleurs sans les prendre pour une saveur ajoutée', () => {
+    expect(
+      catalogueDefects(
+        withFirst({
+          tea: 'fruit',
+          ingredients: ['Hibiscus', 'Citron', 'Pétales de rose', 'Menthe'],
+        }),
+      ),
+    ).toEqual([]);
+  });
+
+  it('accepte une infusion « avec de la saveur » qui annonce un arôme', () => {
+    expect(
+      catalogueDefects(
+        withFirst({ tea: 'fruit', ingredients: ['Hibiscus', 'Arôme naturel'], flavoured: true }),
+      ),
+    ).toEqual([]);
+  });
 });
 
 describe('examplesFor', () => {

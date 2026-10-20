@@ -1,0 +1,128 @@
+@if (view(); as v) {
+  <article fdCard class="app-profile" [sky]="v.family.sky" [emblem]="v.family.emblem">
+    <h1 #heading tabindex="-1">Vos réponses évoquent {{ v.family.phrase }}</h1>
+    <p>{{ v.family.text }}</p>
+    @if (v.profile.caffeine === 'none') {
+      <p>
+        {{
+          v.profile.caffeineRefused
+            ? 'Vous préférez éviter la caféine : les propositions sont des infusions de plantes, de fleurs ou de fruits.'
+            : 'Vous buvez cette tasse le soir et vous voulez limiter la caféine : les propositions sont des infusions, sans caféine.'
+        }}
+      </p>
+    }
+    @if (v.profile.caffeine === 'low') {
+      <p>
+        Vous voulez limiter la caféine : les infusions restent courtes, et une infusion sans caféine
+        complète les propositions.
+      </p>
+    }
+    <div class="app-tags">
+      <fd-badge tone="tokiwa" soft>{{ v.family.label }}</fd-badge>
+      <fd-badge tone="asagi" soft>{{ v.caffeineLabel }}</fd-badge>
+      <fd-badge tone="sakura" soft>{{ v.momentLabel }}</fd-badge>
+      <fd-badge tone="fuji" soft>{{ v.servingLabel }}</fd-badge>
+    </div>
+  </article>
+
+  <section class="app-section" aria-labelledby="h-labels">
+    <header>
+      <h2 id="h-labels">Ce qu’il faut repérer sur le paquet</h2>
+      <p>À vérifier avant d’acheter, sur l’étiquette et dans la liste d’ingrédients.</p>
+    </header>
+    <div class="app-grid">
+      @for (hint of v.hints; track hint.key) {
+        <article fdCard>
+          <span slot="title">{{ hint.name }}</span>
+          <span slot="meta">{{ hint.terms.join(', ') }}</span>
+          {{ hint.why }}
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="app-section" aria-labelledby="h-ritual">
+    <header>
+      <h2 id="h-ritual">Votre rituel</h2>
+      <p>Pensé pour {{ v.minutes }} de préparation active.</p>
+    </header>
+    <div class="app-grid app-grid--wide">
+      <article fdCard class="app-routine" sky="yamabuki" emblem="kiku">
+        <span slot="title">Préparer</span>
+        <span slot="meta">{{ v.ritual.prepare.length }} étapes</span>
+        <ol class="app-steps">
+          @for (step of v.ritual.prepare; track step.title) {
+            <li>
+              <div>
+                <strong>{{ step.title }}</strong>
+                <span>{{ step.detail }}</span>
+              </div>
+              <span class="app-steps__time">{{ step.duration }}</span>
+            </li>
+          }
+        </ol>
+      </article>
+      <article fdCard class="app-routine" sky="kon" emblem="usagi">
+        <span slot="title">Savourer</span>
+        <span slot="meta">{{ v.ritual.enjoy.length }} repères</span>
+        <ol class="app-steps">
+          @for (step of v.ritual.enjoy; track step.title) {
+            <li>
+              <div>
+                <strong>{{ step.title }}</strong>
+                <span>{{ step.detail }}</span>
+              </div>
+            </li>
+          }
+        </ol>
+      </article>
+    </div>
+    <p class="app-note">{{ v.advice }}</p>
+  </section>
+
+  <section class="app-section" aria-labelledby="h-teas">
+    <header>
+      <h2 id="h-teas">Les thés et le matériel qui correspondent</h2>
+      <p>
+        Des types de thés et d’infusions, sans marque. Comparez les listes d’ingrédients de ceux que
+        vous trouvez en magasin.
+      </p>
+    </header>
+    <div class="app-grid">
+      @for (tea of v.teas; track tea.key) {
+        <article fdCard [sky]="tea.sky" [emblem]="tea.emblem">
+          <fd-badge slot="badge" class="app-when">{{ tea.when }}</fd-badge>
+          <span slot="title">{{ tea.title }}</span>
+          <span slot="meta">{{ tea.texture }}</span>
+          {{ tea.text }}
+          @if (tea.note) {
+            <p class="app-label">À savoir</p>
+            <p>{{ tea.note }}</p>
+          }
+          <p class="app-label">À chercher sur l’étiquette</p>
+          <ul slot="actions" class="app-labels">
+            @for (label of tea.labels; track label) {
+              <li>
+                <fd-badge>{{ label }}</fd-badge>
+              </li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+  </section>
+
+  <fd-alert tone="info" title="Ceci n’est pas un avis médical">
+    La caféine peut perturber le sommeil et ne convient pas à tout le monde. Pendant la grossesse ou
+    l’allaitement, avec un traitement ou une maladie, demandez conseil à un médecin ou à un
+    pharmacien : le thé et certaines plantes peuvent interagir avec des médicaments. Le thé bu
+    pendant un repas peut réduire l’absorption du fer d’origine végétale.
+  </fd-alert>
+
+  <div class="app-actions">
+    <button fdButton variant="primary" size="lg" type="button" (click)="quiz.restart()">
+      Recommencer
+    </button>
+    <button fdButton size="lg" type="button" (click)="quiz.edit()">Modifier mes réponses</button>
+  </div>
+}

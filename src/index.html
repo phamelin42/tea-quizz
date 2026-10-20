@@ -2,13 +2,25 @@
 <html lang="fr">
   <head>
     <meta charset="utf-8" />
-    <title>Tea Quizz</title>
+    <title>Tea Quizz : votre thé en 10 questions</title>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content="Quiz sur les thés et leurs bienfaits : thé vert, noir, blanc, oolong, rooibos et infusions." />
+    <meta
+      name="description"
+      content="Dix questions sur vos envies et vos habitudes pour trouver le thé ou l’infusion qui vous correspond : préparation, repères sur le paquet et matériel, sans marque."
+    />
+    <link rel="canonical" href="https://tea-quizz.phamelin.fr/" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <link rel="icon" href="favicon.ico" sizes="48x48" />
     <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+    <!-- Rétablit le thème Nuit choisi avant le premier rendu, sans flash (même clé que FdThemeService). -->
+    <script>
+      try {
+        if (localStorage.getItem('fuda-theme') === 'dark') {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        }
+      } catch {}
+    </script>
   </head>
   <body>
     <app-root></app-root>

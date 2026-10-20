@@ -1,5 +1,5 @@
 import { Component, computed, inject, ViewEncapsulation } from '@angular/core';
-import { FdSwitch, FdThemeService } from 'fuda';
+import { FdSwitch, FdThemeService } from '@phamelin/fuda';
 
 @Component({
   selector: 'app-root',

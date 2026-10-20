@@ -12,8 +12,10 @@
 }
 .app-examples__list li {
   display: grid;
+  min-width: 0;
 }
 // Lien souligné et de 44 px minimum : la couleur ne porte pas seule l'information.
+// Un nom long sans coupure passe à la ligne au lieu d'élargir la carte au-delà de 320 px, qui rogne son débordement.
 .app-examples .app-examples__link {
   display: inline-flex;
   align-items: center;
@@ -23,6 +25,7 @@
   font: 700 16px/24px var(--font-text);
   text-decoration: underline;
   text-underline-offset: var(--space-1);
+  overflow-wrap: anywhere;
 }
 .app-examples .app-examples__link:focus-visible {
   border-radius: var(--radius-sm);

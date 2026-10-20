@@ -111,6 +111,7 @@ describe('QuizService : exemples de produits', () => {
   }
 
   it('n’attache aucun exemple tant que le catalogue est vide', () => {
+    TestBed.configureTestingModule({ providers: [{ provide: PRODUCT_CATALOGUE, useValue: [] }] });
     const { teas } = resultOf(TestBed.inject(QuizService));
     expect(teas.length).toBeGreaterThan(0);
     expect(teas.every((card) => card.examples.length === 0)).toBe(true);

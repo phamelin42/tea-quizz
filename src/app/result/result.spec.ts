@@ -9,12 +9,11 @@ describe('Result', () => {
   beforeEach(() => vi.useFakeTimers());
   afterEach(() => vi.useRealTimers());
 
-  async function render(catalogue?: typeof FIXTURE_CATALOGUE) {
-    if (catalogue) {
-      TestBed.configureTestingModule({
-        providers: [{ provide: PRODUCT_CATALOGUE, useValue: catalogue }],
-      });
-    }
+  /** Le catalogue est toujours fourni : le test ne dépend pas de ce que contient `CATALOGUE`. */
+  async function render(catalogue: typeof FIXTURE_CATALOGUE = []) {
+    TestBed.configureTestingModule({
+      providers: [{ provide: PRODUCT_CATALOGUE, useValue: catalogue }],
+    });
     const quiz = TestBed.inject(QuizService);
     quiz.start();
     QUESTIONS.forEach(() => {

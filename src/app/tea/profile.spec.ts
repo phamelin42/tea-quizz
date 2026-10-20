@@ -1,5 +1,7 @@
 import { FAMILIES, GEARS, LABEL_TIPS, START_ADVICE, TEAS, type TeaKey } from './content';
 import { analyse, type Answers, gearFor, labelHints, ritual, teas } from './profile';
+import { CATALOGUE, catalogueDefects, examplesFor, mentionsBrand, type Product } from './products';
+import { FIXTURE_CATALOGUE } from './products.fixture';
 import { type QuestionId, QUESTIONS } from './questions';
 
 /** Réponses par valeur ; les questions non précisées prennent leur première option. */
@@ -287,5 +289,86 @@ describe('thés et rituel', () => {
       ),
     );
     expect(promises).toEqual([]);
+
+    // Les marques ne vivent que dans products.ts : ni le vrai catalogue ni la fixture ne fuient ici.
+    const branded = everyText.filter((text) =>
+      mentionsBrand(text, [...CATALOGUE, ...FIXTURE_CATALOGUE]),
+    );
+    expect(branded).toEqual([]);
+  }, 120_000);
+});
+
+describe('exemples de produits', () => {
+  // Les variantes aromatisées passent avant les produits nus : sans le filtre « pur », elles seraient prises.
+  const flavoured: Product[] = FIXTURE_CATALOGUE.map((item) => ({
+    ...item,
+    id: `${item.id}-aromatise`,
+    flavoured: true,
+    ingredients: [...item.ingredients, 'arôme naturel'],
+  }));
+  const catalogue = [...flavoured, ...FIXTURE_CATALOGUE];
+
+  it('le catalogue livré respecte les règles qui ne dépendent pas du profil', () => {
+    expect(catalogueDefects(CATALOGUE)).toEqual([]);
+  });
+
+  it('détecte une marque du catalogue dans un texte, quelle que soit la casse', () => {
+    expect(mentionsBrand('Une tasse de maison exemple', FIXTURE_CATALOGUE)).toBe(true);
+    expect(mentionsBrand('Une tasse de thé vert', FIXTURE_CATALOGUE)).toBe(false);
+  });
+
+  it('ne propose pas un thé aromatisé à qui cherche un thé pur', () => {
+    const profile = analyse(answers({ caffeine: 'little', need: 'focus', taste: 'vegetal' }));
+    expect(labelHints(profile).some((hint) => hint.key === 'pure')).toBe(true);
+    const main = teas(profile)[0];
+    const proposed = examplesFor(main, profile, [
+      { ...FIXTURE_CATALOGUE[0], id: 'vert-aromatise', tea: main.tea!, flavoured: true },
+    ]);
+    expect(proposed).toEqual([]);
+  });
+
+  it('n’affiche que des exemples cohérents avec le profil, pour toutes les réponses', () => {
+    const defects: string[] = [];
+    const seen = new Set<string>();
+    let profiles = 0;
+    let teaCards = 0;
+    let withExamples = 0;
+    for (const combination of everyAnswers()) {
+      const profile = analyse(combination);
+      const signature = JSON.stringify(profile);
+      if (seen.has(signature)) continue;
+      seen.add(signature);
+      profiles++;
+      const pure = labelHints(profile).some((hint) => hint.key === 'pure');
+      for (const card of teas(profile)) {
+        const examples = examplesFor(card, profile, catalogue);
+        const fail = (reason: string) => {
+          if (defects.length < 5) defects.push(`${signature} ${card.key} : ${reason}`);
+        };
+        if (card.key === 'gear') {
+          if (examples.length > 0) fail('du matériel ne porte aucun produit');
+          continue;
+        }
+        teaCards++;
+        if (examples.length > 0) withExamples++;
+        else fail('aucun exemple alors que la fixture couvre chaque type');
+        if (examples.length > 3) fail('plus de trois exemples');
+        for (const example of examples) {
+          if (example.tea !== card.tea) fail(`${example.id} illustre un autre type`);
+          if (HERBALS.includes(example.tea)) {
+            if (example.ingredients.some((item) => /camellia|thé/i.test(item))) {
+              fail(`${example.id} : une infusion contient du thé`);
+            }
+          } else if (profile.caffeine === 'none') {
+            fail(`${example.id} : un thé est proposé sans caféine`);
+          }
+          if (pure && example.flavoured) fail(`${example.id} : aromatisé pour un thé pur`);
+        }
+      }
+    }
+    expect(defects).toEqual([]);
+    expect(profiles).toBeGreaterThan(1);
+    expect(teaCards).toBeGreaterThanOrEqual(profiles * 2);
+    expect(withExamples).toBe(teaCards);
   }, 120_000);
 });

@@ -1,4 +1,6 @@
 import { TestBed } from '@angular/core/testing';
+import { PRODUCT_CATALOGUE } from './products';
+import { FIXTURE_CATALOGUE } from './products.fixture';
 import { QUESTIONS } from './questions';
 import { ANALYSIS_DELAY, ANSWER_DELAY, QuizService } from './quiz.service';
 
@@ -91,5 +93,38 @@ describe('QuizService', () => {
     quiz.restart();
     vi.advanceTimersByTime(ANALYSIS_DELAY);
     expect(quiz.screen()).toBe('home');
+  });
+});
+
+describe('QuizService : exemples de produits', () => {
+  beforeEach(() => vi.useFakeTimers());
+  afterEach(() => vi.useRealTimers());
+
+  function resultOf(quiz: QuizService) {
+    quiz.start();
+    QUESTIONS.forEach(() => {
+      quiz.choose(0);
+      vi.advanceTimersByTime(ANSWER_DELAY);
+    });
+    vi.advanceTimersByTime(ANALYSIS_DELAY);
+    return quiz.result()!;
+  }
+
+  it('n’attache aucun exemple tant que le catalogue est vide', () => {
+    const { teas } = resultOf(TestBed.inject(QuizService));
+    expect(teas.length).toBeGreaterThan(0);
+    expect(teas.every((card) => card.examples.length === 0)).toBe(true);
+  });
+
+  it('attache à chaque carte de thé les produits de son type, et rien au matériel', () => {
+    TestBed.configureTestingModule({
+      providers: [{ provide: PRODUCT_CATALOGUE, useValue: FIXTURE_CATALOGUE }],
+    });
+    const { profile, teas } = resultOf(TestBed.inject(QuizService));
+    const main = teas.find((card) => card.key === 'main')!;
+    const gear = teas.find((card) => card.key === 'gear')!;
+    expect(main.examples.length).toBeGreaterThan(0);
+    expect(main.examples.every((item) => item.tea === profile.tea)).toBe(true);
+    expect(gear.examples).toEqual([]);
   });
 });

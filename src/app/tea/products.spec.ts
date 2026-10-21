@@ -4,6 +4,7 @@ import {
   AFFILIATE_NOTICE,
   AFFILIATE_TAG,
   amazonUrl,
+  CATALOGUE,
   catalogueDefects,
   EXAMPLES_NOTE,
   examplesFor,
@@ -58,6 +59,21 @@ describe('amazonUrl', () => {
   it('construit le lien amazon.fr avec le tag d’affiliation', () => {
     expect(AFFILIATE_TAG).toBe('phamelin-21');
     expect(amazonUrl('B0TESTTE01')).toBe('https://www.amazon.fr/dp/B0TESTTE01?tag=phamelin-21');
+  });
+});
+
+describe('CATALOGUE', () => {
+  it('est valide : aucun défaut de forme ou de composition', () => {
+    expect(CATALOGUE.length).toBeGreaterThan(0);
+    expect(catalogueDefects(CATALOGUE)).toEqual([]);
+  });
+
+  it('présente au plus deux produits par type, de marques différentes, sans classement', () => {
+    for (const key of Object.keys(TEAS) as TeaKey[]) {
+      const brands = CATALOGUE.filter((item) => item.tea === key).map((item) => item.brand);
+      expect(brands.length, key).toBeLessThanOrEqual(2);
+      expect(new Set(brands).size, key).toBe(brands.length);
+    }
   });
 });
 

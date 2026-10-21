@@ -1,14 +1,6 @@
 import { FAMILIES, GEARS, LABEL_TIPS, START_ADVICE, TEAS, type TeaKey } from './content';
 import { analyse, type Answers, gearFor, labelHints, ritual, teas } from './profile';
-import {
-  AFFILIATE_NOTICE,
-  CATALOGUE,
-  catalogueDefects,
-  EXAMPLES_NOTE,
-  examplesFor,
-  mentionsBrand,
-  type Product,
-} from './products';
+import { CATALOGUE, catalogueDefects, examplesFor, mentionsBrand, type Product } from './products';
 import { FIXTURE_CATALOGUE } from './products.fixture';
 import { type QuestionId, QUESTIONS } from './questions';
 
@@ -299,8 +291,6 @@ describe('thés et rituel', () => {
       ...Object.values(GEARS).map((gear) => gear.text),
       ...Object.values(LABEL_TIPS).map((tip) => tip.why),
       ...Object.values(START_ADVICE),
-      AFFILIATE_NOTICE,
-      EXAMPLES_NOTE,
     ];
     const everyText = [...editorial, ...catalogueTexts(CATALOGUE)];
     const promises = everyText.filter((text) => PROMISES.test(text));

@@ -6,12 +6,6 @@ import { labelHints, type Profile, type TeaCard } from './profile';
 /** Défini ici seulement : le tag d’affiliation Partenaires Amazon du site. */
 export const AFFILIATE_TAG = 'phamelin-21';
 
-export const AFFILIATE_NOTICE =
-  'En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.';
-
-export const EXAMPLES_NOTE =
-  'Exemples dont la composition correspond au type évoqué, présentés sans classement.';
-
 export interface Product {
   readonly id: string;
   readonly name: string;

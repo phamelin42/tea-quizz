@@ -27,7 +27,7 @@
 
 - Catalogue vide (état de production de cette PR) : aucune carte n'affiche de bloc, aucune mention d'affiliation, aucune erreur.
 - Profil « Aucune caféine » (ou le soir sans la rechercher) : aucun produit de thé (`LeafTea`) n'est proposé, même sur la carte « Pour varier ».
-- Un thé « pur » (repère `pure` affiché) ne reçoit jamais un produit `flavoured: true`.
+- Un thé « pur » (repère `pure` affiché) ne reçoit jamais un produit `flavoured: true`, sauf pour le chai (aromatisé par nature).
 - Une infusion dont la composition cite `Camellia sinensis` ou « thé » est signalée par `catalogueDefects` ; un thé sans feuille de théier aussi (contrôle négatif testé).
 - La carte « matériel » (`gear`) n'affiche jamais d'exemple.
 
@@ -68,7 +68,7 @@ Run: `npx ng test --no-watch --include='src/app/tea/products.spec.ts'` — Expec
 
 - [ ] **Step 3: Implémenter**
 
-`teas()` : le helper `card()` ajoute `tea`. `products.ts` suit les signatures ci-dessus ; `examplesFor` applique, dans l'ordre : `card.tea` défini et égal à `product.tea` ; `profile.caffeine === 'none'` → exclut les produits dont `tea` est un `LeafTea` (réutiliser `TEAS[tea].caffeine`) ; repère `pure` affiché → exclut `flavoured` ; `.slice(0, 3)`. Commentaire sur le pourquoi : le filtre applique les règles de profil, `catalogueDefects` celles qui ne dépendent pas du profil.
+`teas()` : le helper `card()` ajoute `tea`. `products.ts` suit les signatures ci-dessus ; `examplesFor` applique, dans l'ordre : `card.tea` défini et égal à `product.tea` ; `profile.caffeine === 'none'` → exclut les produits dont `tea` est un `LeafTea` (réutiliser `TEAS[tea].caffeine`) ; repère `pure` affiché → exclut `flavoured`, sauf pour le chai (aromatisé par nature) ; `.slice(0, 3)`. Commentaire sur le pourquoi : le filtre applique les règles de profil, `catalogueDefects` celles qui ne dépendent pas du profil.
 
 - [ ] **Step 4: Relancer** — même commande. Expected: PASS.
 
@@ -97,7 +97,7 @@ git commit -m "Ajoute le catalogue de produits et ses règles"
 - [ ] **Step 1: Écrire les tests (échec attendu)**
 
 `quiz.service.spec.ts` : catalogue par défaut → chaque carte a `examples: []` ; avec `{ provide: PRODUCT_CATALOGUE, useValue: fixture }`, la carte `main` a au moins un exemple dont `tea` est `profile.tea`, et la carte `gear` aucun. Reprendre la manière dont le fichier atteint l'écran `result`.
-`profile.spec.ts` : (a) test « n'affiche que des exemples cohérents avec le profil, pour toutes les réponses » : parcourir `everyAnswers()`, traiter chaque profil distinct une fois (`JSON.stringify(profile)` dans un `Set`), appeler `examplesFor` pour chaque carte de `teas(profile)` avec la fixture. Contrôles réécrits indépendamment du filtre : exemple d'une infusion → pas de `Camellia`/`thé` dans ses ingrédients ; profil sans caféine → aucun exemple de `LeafTea` ; repère `pure` → `flavoured === false` ; carte `gear` → aucun exemple. Un seul `expect(defects).toEqual([])`. Contrôle négatif : un thé vert fixture avec `flavoured: true` n'est pas proposé à un profil `pure`. (b) test « les marques ne vivent que dans products.ts » : sur `everyText` du test existant (le même tableau, ne pas dupliquer l'énumération : le sortir dans une aide partagée), `mentionsBrand(text, [...CATALOGUE, ...fixture])` est faux pour chaque texte. (c) `expect(catalogueDefects(CATALOGUE)).toEqual([])`.
+`profile.spec.ts` : (a) test « n'affiche que des exemples cohérents avec le profil, pour toutes les réponses » : parcourir `everyAnswers()`, traiter chaque profil distinct une fois (`JSON.stringify(profile)` dans un `Set`), appeler `examplesFor` pour chaque carte de `teas(profile)` avec la fixture. Contrôles réécrits indépendamment du filtre : exemple d'une infusion → pas de `Camellia`/`thé` dans ses ingrédients ; profil sans caféine → aucun exemple de `LeafTea` ; repère `pure` → `flavoured === false`, sauf pour le chai (aromatisé par nature) ; carte `gear` → aucun exemple. Un seul `expect(defects).toEqual([])`. Contrôle négatif : un thé vert fixture avec `flavoured: true` n'est pas proposé à un profil `pure`. (b) test « les marques ne vivent que dans products.ts » : sur `everyText` du test existant (le même tableau, ne pas dupliquer l'énumération : le sortir dans une aide partagée), `mentionsBrand(text, [...CATALOGUE, ...fixture])` est faux pour chaque texte. (c) `expect(catalogueDefects(CATALOGUE)).toEqual([])`.
 
 - [ ] **Step 2: Constater l'échec**
 

@@ -220,7 +220,7 @@ describe('catalogueDefects', () => {
   it('signale un thé sans saveur ajoutée dont la composition a plusieurs ingrédients', () => {
     expect(
       catalogueDefects(withFirst({ ingredients: ['Thé vert sencha', 'Sucre de canne'] })),
-    ).toEqual([expect.stringContaining('ingrédient')]);
+    ).toEqual([expect.stringContaining('plusieurs ingrédients')]);
     // Le même thé écrit deux fois ne fait pas deux ingrédients.
     expect(
       catalogueDefects(withFirst({ tea: 'black', ingredients: ['Thé noir', 'Thé noir*'] })),
@@ -244,41 +244,71 @@ describe('catalogueDefects', () => {
     expect(catalogueDefects([FLAVOURED_GREEN])).toEqual([]);
   });
 
-  it('signale un thé « sans saveur » dont la composition évoque un arôme, une épice, un fruit ou une fleur', () => {
-    for (const ingredient of [
-      'Arôme naturel',
-      'Arômes',
-      'Aroma',
-      'Natural flavour',
-      'Flavor',
-      'Saveur vanille',
-      'Cannelle',
-      'Cardamome',
-      'Gingembre',
-      'Clou de girofle',
-      'Vanille',
-      'Bergamote',
-      'Zeste de citron',
-      'Écorces d’orange',
-      'Morceaux de fruits',
-      'Pétales de rose',
-      'Fleurs de souci',
-      'Menthe',
-      'Jasmin',
-      'Épices',
+  // Un seul ingrédient par chaîne : la règle du nombre d’ingrédients ne peut pas masquer le mot-clé.
+  it('signale chaque arôme, épice, fruit ou fleur ajouté à un thé « sans saveur »', () => {
+    for (const flavour of [
+      'arôme naturel',
+      'arômes',
+      'aroma',
+      'aromatisé',
+      'natural flavour',
+      'flavor',
+      'saveur',
+      'cannelle',
+      'cinnamon',
+      'cardamome',
+      'gingembre',
+      'clou de girofle',
+      'vanille',
+      'vanilla',
+      'bergamote',
+      'bergamot',
+      'Earl Grey',
+      'zeste de citron',
+      'écorces d’orange',
+      'fruits',
+      'fleurs',
+      'pétales',
+      'menthe',
+      'rose',
+      'jasmin',
+      'épices',
+      'parfumé',
+      'caramel',
+      'chocolat',
+      'pêche',
+      'fraise',
+      'cerise',
+      'framboise',
+      'mangue',
     ]) {
-      expect(
-        catalogueDefects(withFirst({ ingredients: ['Thé vert', ingredient] })),
-        ingredient,
-      ).toEqual([expect.stringContaining('saveur')]);
+      const ingredient = `Thé vert ${flavour}`;
+      expect(catalogueDefects(withFirst({ ingredients: [ingredient] })), ingredient).toEqual([
+        expect.stringContaining(`annonce « ${ingredient} »`),
+      ]);
     }
   });
 
-  it('signale un thé « sans saveur » dont l’unique ingrédient porte déjà une saveur', () => {
-    for (const ingredient of ['Thé vert à la bergamote', 'Thé noir vanille', 'Thé vert jasmin']) {
-      expect(catalogueDefects(withFirst({ ingredients: [ingredient] })), ingredient).toEqual([
-        expect.stringContaining('saveur'),
-      ]);
+  it('signale aussi un arôme ou une épice écrit seul à côté du thé', () => {
+    for (const ingredient of ['Arôme naturel', 'Cannelle', 'Pétales de rose et de bleuet']) {
+      expect(
+        catalogueDefects(withFirst({ ingredients: ['Thé vert', ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining(`annonce « ${ingredient} »`)]);
+    }
+  });
+
+  it('ne prend pas pour une saveur ajoutée les thés nature usuels', () => {
+    for (const ingredient of [
+      'Thé noir Assam',
+      'Thé vert Gunpowder',
+      'Thé vert Sencha',
+      'Thé noir Ceylan',
+      'Thé blanc Bai Mu Dan',
+      'Thé oolong Tie Guan Yin',
+      'Thé noir Assam Orange Pekoe',
+    ]) {
+      expect(catalogueDefects(withFirst({ ingredients: [ingredient] })), ingredient).toEqual([]);
     }
   });
 
@@ -291,7 +321,7 @@ describe('catalogueDefects', () => {
   it('ne signale qu’une fois un thé « sans saveur » qui a un arôme et plusieurs ingrédients', () => {
     expect(
       catalogueDefects(withFirst({ ingredients: ['Thé vert', 'Arôme naturel de jasmin'] })),
-    ).toEqual([expect.stringContaining('saveur')]);
+    ).toEqual([expect.stringContaining('annonce')]);
   });
 
   it('signale une infusion « sans saveur » dont la composition annonce un arôme', () => {
@@ -299,7 +329,7 @@ describe('catalogueDefects', () => {
       expect(
         catalogueDefects(withFirst({ tea: 'fruit', ingredients: ['Hibiscus', ingredient] })),
         ingredient,
-      ).toEqual([expect.stringContaining('saveur')]);
+      ).toEqual([expect.stringContaining(`annonce « ${ingredient} »`)]);
     }
   });
 

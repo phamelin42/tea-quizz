@@ -64,7 +64,7 @@ const TEA_IN_LEAF = /camellia|(?<!\p{L})th[ée](?!\p{L})|(?<!\p{L})tea(?!\p{L})|
 
 /**
  * Un arôme ou une saveur annoncés : interdit dans un produit « sans saveur », thé ou infusion.
- * Même bornes Unicode que ci-dessus, posées au début seulement pour couvrir « arômes », « saveurs ».
+ * Mêmes bornes Unicode que ci-dessus, posées au début seulement pour couvrir « arômes », « saveurs ».
  */
 const AROMA = /(?<!\p{L})(?:ar[ôo]me|aroma|flavou?r|saveur)/iu;
 /**
@@ -73,7 +73,7 @@ const AROMA = /(?<!\p{L})(?:ar[ôo]me|aroma|flavou?r|saveur)/iu;
  * feuille, pas une orange ajoutée.
  */
 const ADDED_TO_LEAF =
-  /(?<!\p{L})(?:cannelle|cardamome|gingembre|girofle|vanille|bergamote|citron|orange(?!\s+pekoe)|fruit|fleur|p[ée]tale|menthe|rose|jasmin|[ée]pice)/iu;
+  /(?<!\p{L})(?:cannelle|cinnamon|cardamome|gingembre|girofle|vanill[ae]|bergamote?|earl\s+grey|citron|orange(?!\s+pekoe)|fruit|fleur|p[ée]tale|menthe|rose|jasmin|[ée]pice|parfum|caramel|chocolat|p[êe]che|fraise|cerise|framboise|mangue)/iu;
 /** Note de bas de liste (« * issu de l’agriculture biologique », « bio ») : ce n’est pas un ingrédient. */
 const FOOTNOTE = /^(?:\*|bio(?:logique)?$)/iu;
 /** Le qualificatif de fin d’un ingrédient (« * », « (Chine) »), pour compter les ingrédients distincts. */
@@ -94,11 +94,12 @@ function distinctIngredients(ingredients: readonly string[]): number {
  * un fruit ou une fleur, puis tout ingrédient en plus du thé lui-même.
  */
 function addedFlavour(item: Product, leaf: boolean): string | undefined {
-  const keyword = leaf ? [AROMA, ADDED_TO_LEAF] : [AROMA];
-  const found = item.ingredients.find((ingredient) => keyword.some((re) => re.test(ingredient)));
-  if (found) return `la composition évoque une saveur ajoutée (${found})`;
+  const patterns = leaf ? [AROMA, ADDED_TO_LEAF] : [AROMA];
+  const found = item.ingredients.find((ingredient) => patterns.some((re) => re.test(ingredient)));
+  // Deux formulations distinctes : un test sur l’une ne doit pas passer grâce à l’autre.
+  if (found) return `la composition annonce « ${found} », une saveur ajoutée`;
   if (leaf && distinctIngredients(item.ingredients) > 1) {
-    return 'un thé sans saveur ajoutée n’a qu’un ingrédient, le thé lui-même';
+    return 'la composition compte plusieurs ingrédients, or un thé nature n’a que le thé';
   }
   return undefined;
 }

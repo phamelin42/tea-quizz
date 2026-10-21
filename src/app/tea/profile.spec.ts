@@ -292,22 +292,23 @@ describe('thés et rituel', () => {
     expect(count).toBe(QUESTIONS.reduce((total, q) => total * q.options.length, 1));
 
     // Aucune promesse de résultat, aucun vocabulaire médical : texte relu en entier.
-    const everyText = [
+    const editorial = [
       ...texts,
       ...Object.values(TEAS).flatMap((tea) => [tea.why, tea.flavour, tea.note ?? '']),
       ...Object.values(FAMILIES).map((family) => family.text),
       ...Object.values(GEARS).map((gear) => gear.text),
       ...Object.values(LABEL_TIPS).map((tip) => tip.why),
       ...Object.values(START_ADVICE),
-      ...catalogueTexts(CATALOGUE),
       AFFILIATE_NOTICE,
       EXAMPLES_NOTE,
     ];
+    const everyText = [...editorial, ...catalogueTexts(CATALOGUE)];
     const promises = everyText.filter((text) => PROMISES.test(text));
     expect(promises).toEqual([]);
 
-    // Les marques ne vivent que dans products.ts : ni le vrai catalogue ni la fixture ne fuient ici.
-    const branded = everyText.filter((text) =>
+    // Les marques ne vivent que dans le catalogue : aucun texte éditorial n’en cite, ni du vrai
+    // catalogue ni de la fixture (les textes du catalogue lui-même citent évidemment leur marque).
+    const branded = editorial.filter((text) =>
       mentionsBrand(text, [...CATALOGUE, ...FIXTURE_CATALOGUE]),
     );
     expect(branded).toEqual([]);
@@ -322,7 +323,7 @@ describe('exemples de produits', () => {
     flavoured: true,
     ingredients: [...item.ingredients, 'arôme naturel'],
   }));
-  const catalogue = [...flavoured, ...FIXTURE_CATALOGUE];
+  const catalogue = [...flavoured, ...FIXTURE_CATALOGUE, ...CATALOGUE];
 
   it('le catalogue livré respecte les règles qui ne dépendent pas du profil', () => {
     expect(catalogueDefects(CATALOGUE)).toEqual([]);
@@ -358,9 +359,21 @@ describe('exemples de produits', () => {
     expect(proposed).toEqual([]);
   });
 
-  it('n’affiche que des exemples cohérents avec le profil, pour toutes les réponses', () => {
-    const defects: string[] = [];
+  /** Les profils distincts : l'analyse en donne bien moins que de combinaisons de réponses. */
+  function* everyProfile(): Generator<ReturnType<typeof analyse>> {
     const seen = new Set<string>();
+    for (const combination of everyAnswers()) {
+      const profile = analyse(combination);
+      const signature = JSON.stringify(profile);
+      if (seen.has(signature)) continue;
+      seen.add(signature);
+      yield profile;
+    }
+  }
+
+  /** Chaque exemple affiché doit respecter le profil ; les compteurs disent ce que le parcours a couvert. */
+  function exampleChecks(catalogue: readonly Product[]) {
+    const defects: string[] = [];
     let profiles = 0;
     let teaCards = 0;
     let withExamples = 0;
@@ -368,11 +381,8 @@ describe('exemples de produits', () => {
     let pureProfiles = 0;
     let pureTeaCards = 0;
     let chaiCards = 0;
-    for (const combination of everyAnswers()) {
-      const profile = analyse(combination);
+    for (const profile of everyProfile()) {
       const signature = JSON.stringify(profile);
-      if (seen.has(signature)) continue;
-      seen.add(signature);
       profiles++;
       const pure = labelHints(profile).some((hint) => hint.key === 'pure');
       if (pure) pureProfiles++;
@@ -387,13 +397,12 @@ describe('exemples de produits', () => {
         }
         teaCards++;
         if (examples.length > 0) withExamples++;
-        else fail('aucun exemple alors que la fixture couvre chaque type');
         if (examples.length > 3) fail('plus de trois exemples');
         if (pure && card.tea !== 'chai') pureTeaCards++;
         if (card.tea === 'chai') {
-          // Le chai est aromatisé par nature : « pur » ou non, on le montre avec ses épices.
           chaiCards++;
-          if (!examples.some((example) => example.flavoured))
+          // Le chai est aromatisé par nature : « pur » ou non, on le montre avec ses épices.
+          if (examples.length > 0 && !examples.some((example) => example.flavoured))
             fail('le chai n’est pas montré avec ses épices');
         }
         for (const example of examples) {
@@ -411,14 +420,47 @@ describe('exemples de produits', () => {
         }
       }
     }
-    expect(defects).toEqual([]);
-    expect(profiles).toBeGreaterThan(1);
-    expect(teaCards).toBeGreaterThanOrEqual(profiles * 2);
-    expect(withExamples).toBe(teaCards);
-    expect(pureProfiles).toBeGreaterThan(0);
-    expect(pureTeaCards).toBeGreaterThan(0);
-    expect(chaiCards).toBeGreaterThan(0);
+    return { defects, profiles, teaCards, withExamples, pureProfiles, pureTeaCards, chaiCards };
+  }
+
+  it('n’affiche que des exemples cohérents avec le profil, pour toutes les réponses', () => {
+    // La fixture couvre chaque type : toute carte de thé montre un exemple.
+    const checked = exampleChecks(catalogue);
+    expect(checked.defects).toEqual([]);
+    expect(checked.profiles).toBeGreaterThan(1);
+    expect(checked.teaCards).toBeGreaterThanOrEqual(checked.profiles * 2);
+    expect(checked.withExamples).toBe(checked.teaCards);
+    expect(checked.pureProfiles).toBeGreaterThan(0);
+    expect(checked.pureTeaCards).toBeGreaterThan(0);
+    expect(checked.chaiCards).toBeGreaterThan(0);
+
+    // Derrière la fixture, la limite de trois exemples écarte les produits réels : on contrôle donc
+    // aussi le vrai catalogue seul, puis suivi de la fixture, pour que ses produits soient vus.
+    for (const real of [CATALOGUE, [...CATALOGUE, ...FIXTURE_CATALOGUE]]) {
+      const own = exampleChecks(real);
+      expect(own.defects).toEqual([]);
+      expect(own.teaCards).toBe(checked.teaCards);
+      expect(own.pureTeaCards).toBeGreaterThan(0);
+      expect(own.chaiCards).toBeGreaterThan(0);
+    }
+  }, 180_000);
+
+  it('montre chaque produit du catalogue livré sur au moins une carte, pour au moins un profil', () => {
+    expect(CATALOGUE.length).toBeGreaterThan(0);
+    const shown = new Set<string>();
+    for (const profile of everyProfile()) {
+      for (const card of teas(profile)) {
+        for (const example of examplesFor(card, profile, CATALOGUE)) shown.add(example.id);
+      }
+    }
+    // Un produit qui ne s'affiche jamais est un lien mort : on le nomme.
+    expect(CATALOGUE.map((item) => item.id).filter((id) => !shown.has(id))).toEqual([]);
   }, 120_000);
+
+  it('ne laisse aucune promesse de santé dans le nom, la marque ni la composition du catalogue livré', () => {
+    expect(CATALOGUE.length).toBeGreaterThan(0);
+    expect(catalogueTexts(CATALOGUE).filter((text) => PROMISES.test(text))).toEqual([]);
+  });
 
   it('écarte un thé quand la caféine est écartée, indépendamment du repère « pur »', () => {
     // Aucun profil réel n’associe un thé à « aucune caféine » : la carte est fabriquée pour isoler ce filtre.

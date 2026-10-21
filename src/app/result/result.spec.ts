@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 import { QUESTIONS } from '../tea/questions';
-import { PRODUCT_CATALOGUE } from '../tea/products';
+import { CATALOGUE, PRODUCT_CATALOGUE } from '../tea/products';
 import { FIXTURE_CATALOGUE } from '../tea/products.fixture';
 import { ANALYSIS_DELAY, ANSWER_DELAY, QuizService } from '../tea/quiz.service';
 import { Result } from './result';
@@ -52,5 +52,28 @@ describe('Result', () => {
     expect(element.querySelector('fd-alert')?.textContent).toContain(
       'Ceci n’est pas un avis médical',
     );
+  });
+
+  it('mentionne la réglisse dans l’encart, avec le conseil de demander un avis', async () => {
+    const element = await render();
+    const box = element.querySelector('fd-alert')!.textContent!.replace(/[^\S\u00a0]+/g, ' ');
+    expect(box).toContain(
+      'La réglisse, présente dans certaines infusions, peut faire monter la tension artérielle\u00a0: en cas d’hypertension ou de grossesse, demandez conseil à un médecin ou à un pharmacien.',
+    );
+    // Les phrases d'origine restent.
+    expect(box).toContain('La caféine peut perturber le sommeil');
+    expect(box).toContain('absorption du fer');
+  });
+
+  it('prévient de la réglisse dès qu’un produit du catalogue en contient', async () => {
+    const licorice = CATALOGUE.filter((item) =>
+      item.ingredients.some((ingredient) => /r[ée]glisse|licorice|liquorice/i.test(ingredient)),
+    );
+    // Avec ces produits à l'écran ou non, l'encart prévient : le catalogue ne l'emporte pas sur lui.
+    for (const catalogue of [CATALOGUE, licorice]) {
+      const element = await render(catalogue);
+      expect(element.querySelector('fd-alert')!.textContent).toContain('réglisse');
+      TestBed.resetTestingModule();
+    }
   });
 });

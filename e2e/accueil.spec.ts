@@ -13,6 +13,11 @@ async function answerAll(page: Page, keys = ['1', '2', '3', '1', '3', '3', '2', 
   }
 }
 
+/** Un thé vert : la carte du thé et celle du thé suivant montrent des exemples du catalogue. */
+const KEYS_WITH_TEA = ['1', '2', '3', '1', '3', '3', '2', '1', '2', '2'];
+/** Le soir, pour se détendre, sans caféine : uniquement des infusions. */
+const KEYS_WITHOUT_CAFFEINE = ['4', '3', '4', '6', '1', '1', '1', '1', '1', '1'];
+
 /** axe au repos : une couleur lue pendant une transition serait interpolée. */
 async function expectNoViolations(page: Page) {
   await page.waitForFunction(() =>
@@ -125,6 +130,69 @@ for (const theme of ['light', 'dark'] as const) {
 
     await answerAll(page);
     await expect(page.getByRole('button', { name: 'Recommencer' })).toBeVisible();
+    await expectNoViolations(page);
+  });
+}
+
+/** Le résultat avec des produits à l'écran : rien ne se vérifie sur un résultat sans exemple. */
+async function reachResultWithExamples(page: Page, keys = KEYS_WITH_TEA) {
+  await page.goto('/');
+  await page.getByRole('button', { name: 'Commencer' }).click();
+  await answerAll(page, keys);
+  await expect(
+    page.getByRole('heading', { level: 1, name: /Vos réponses évoquent/ }),
+  ).toBeFocused();
+  await expect(page.locator('app-examples').first()).toBeVisible();
+}
+
+test('le résultat montre des exemples sur Amazon, avec la mention d’affiliation une seule fois', async ({
+  page,
+}) => {
+  await reachResultWithExamples(page);
+  const links = page.locator('app-examples a');
+  expect(await links.count()).toBeGreaterThan(0);
+  for (const link of await links.all()) {
+    await expect(link).toHaveAttribute(
+      'href',
+      /^https:\/\/www\.amazon\.fr\/dp\/[A-Z0-9]{10}\?tag=phamelin-21$/,
+    );
+    await expect(link).toHaveAttribute('rel', /sponsored/);
+    await expect(link).toHaveAttribute('target', '_blank');
+  }
+  await expect(page.getByText('Exemples sur Amazon').first()).toBeVisible();
+  await expect(
+    page.getByText('En tant que Partenaire Amazon, je réalise un bénéfice', { exact: false }),
+  ).toHaveCount(1);
+});
+
+test('sans caféine, les exemples sont des infusions', async ({ page }) => {
+  await reachResultWithExamples(page, KEYS_WITHOUT_CAFFEINE);
+  const compositions = await page.locator('.app-examples__composition').allTextContents();
+  expect(compositions.length).toBeGreaterThan(0);
+  for (const composition of compositions) {
+    expect(composition).not.toMatch(/camellia|(?<![\p{L}])th[ée](?![\p{L}])|\btea\b|matcha/iu);
+  }
+});
+
+test('le résultat avec exemples ne déborde pas en largeur à 320 px', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 640 });
+  await reachResultWithExamples(page);
+  const width = await page.evaluate(() => document.documentElement.scrollWidth);
+  expect(width).toBeLessThanOrEqual(320);
+  for (const link of await page.locator('app-examples a').all()) {
+    const box = await link.boundingBox();
+    expect(box!.height).toBeGreaterThanOrEqual(44);
+    expect(box!.x + box!.width).toBeLessThanOrEqual(320);
+  }
+});
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`axe (WCAG 2.2 AA) sur le résultat avec exemples, thème ${theme}`, async ({ page }) => {
+    if (theme === 'dark') {
+      await page.addInitScript(() => localStorage.setItem('fuda-theme', 'dark'));
+    }
+    await reachResultWithExamples(page);
+    await expect(page.locator('app-examples a').first()).toBeVisible();
     await expectNoViolations(page);
   });
 }

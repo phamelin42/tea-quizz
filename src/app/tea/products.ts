@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { TEAS, type TeaKey } from './content';
+import { CATALOGUE } from './catalogue';
 import { labelHints, type Profile, type TeaCard } from './profile';
 
 /** Défini ici seulement : le tag d’affiliation Partenaires Amazon du site. */
@@ -31,8 +32,8 @@ export interface Product {
   readonly validated: string;
 }
 
-/** Vide tant que Phil n’a pas ouvert et validé chaque lien Amazon : aucun ASIN ne se devine. */
-export const CATALOGUE: readonly Product[] = [];
+/** Les données vivent dans `catalogue.ts` ; elles sont ré-exportées ici pour garder un seul point d’entrée. */
+export { CATALOGUE };
 
 /** Jeton plutôt qu’import direct, pour que les tests fournissent leur propre catalogue. */
 export const PRODUCT_CATALOGUE = new InjectionToken<readonly Product[]>('PRODUCT_CATALOGUE', {
@@ -51,16 +52,28 @@ const MAX_EXAMPLES = 3;
 const ASIN = /^[A-Z0-9]{10}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
 /**
- * Une infusion n’a ni théine ni caféine : tout ce qui évoque le théier, ou une autre plante à
- * caféine (maté, guarana, guayusa, kola, café, yaupon), la disqualifie, sans quoi `examplesFor` la
- * montrerait à qui a écarté la caféine. Les bornes sont des lookarounds Unicode, car `\b` ne voit
- * pas « é » comme une lettre et manquerait « Thé vert » ; elles évitent aussi « Menthe », « Mathéo »,
- * « Chocolat » ou « Décaféiné ».
+ * Les noms usuels de thé, qui se disent souvent sans le mot « thé » (« oolong (Taiwan, China) »).
+ * Partagés par les deux contrôles : ce qui prouve un thé dans une feuille disqualifie une infusion.
+ * La cannelle de Ceylan, une épice, n’est pas du thé de Ceylan ; sans cette exception, elle ferait
+ * passer un mélange d’épices pour un chaï, et écarterait une infusion qui en contient.
  */
-const TEA_IN_HERBAL =
-  /camellia|caf[ée]ine|caffeine|(?<!\p{L})(?:th[ée]|tea|mat[ée]|yerba|guaran[aá]|guayusa|[ck]ola|caf[ée]|coffee|yaupon)(?!\p{L})/iu;
+const TEA_NAMES = String.raw`oolong|wu\s?long|sencha|gyokuro|bancha|genmaicha|hojicha|darjeeling|assam|(?<!(?:cannelle|cinnamon)\s+(?:de\s+|from\s+|of\s+)?)cey(?:lan|lon)|keemun|lapsang|souchong|yunnan|earl\s+grey|gunpowder|matcha|pu[-\s]?erh`;
+/**
+ * Une infusion n’a ni théine ni caféine : tout ce qui évoque le théier, un nom de thé, ou une autre
+ * plante à caféine (maté, guarana, guayusa, kola, café, yaupon), la disqualifie, sans quoi
+ * `examplesFor` la montrerait à qui a écarté la caféine. Les bornes sont des lookarounds Unicode,
+ * car `\b` ne voit pas « é » comme une lettre et manquerait « Thé vert » ; elles évitent aussi
+ * « Menthe », « Mathéo », « Chocolat » ou « Décaféiné ».
+ */
+const TEA_IN_HERBAL = new RegExp(
+  String.raw`camellia|caf[ée]ine|caffeine|(?<!\p{L})(?:th[ée]|tea|mat[ée]|yerba|guaran[aá]|guayusa|[ck]ola|caf[ée]|coffee|yaupon|${TEA_NAMES})(?!\p{L})`,
+  'iu',
+);
 /** Mêmes bornes que ci-dessus : sans elles, « Menthe » (« nthe ») passerait pour du thé. */
-const TEA_IN_LEAF = /camellia|(?<!\p{L})th[ée](?!\p{L})|(?<!\p{L})tea(?!\p{L})|matcha|pu-?erh/iu;
+const TEA_IN_LEAF = new RegExp(
+  String.raw`camellia|(?<!\p{L})(?:th[ée]|tea|${TEA_NAMES})(?!\p{L})`,
+  'iu',
+);
 
 /**
  * Un arôme ou une saveur annoncés : interdit dans un produit « sans saveur », thé ou infusion.

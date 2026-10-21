@@ -1,5 +1,5 @@
-import type { TeaKey } from './content';
-import type { Product } from './products';
+import type { GearKey, TeaKey } from './content';
+import type { GearProduct, Product } from './products';
 
 /** Pour chaque clé : [ASIN de test, composition]. Jamais importé par l’application : seulement par les specs. */
 const SAMPLES: Record<TeaKey, readonly [string, readonly string[]]> = {
@@ -45,3 +45,24 @@ export const FLAVOURED_GREEN: Product = {
   sourceUrl: 'https://exemple.test/green-jasmin',
   validated: '2026-10-20',
 };
+
+const GEAR_SAMPLES: Record<GearKey, readonly [string, readonly string[]]> = {
+  whisk: ['B0TESTGE01', ['Bambou', '100 brins']],
+  carafe: ['B0TESTGE02', ['Verre', 'Contenance 1 L']],
+  gaiwan: ['B0TESTGE03', ['Porcelaine', 'Contenance 150 ml']],
+  infuser: ['B0TESTGE04', ['Acier inoxydable', 'Panier de 8 cm']],
+};
+
+/** Un accessoire valide par matériel, pour tester les règles sans dépendre du vrai catalogue. */
+export const FIXTURE_GEAR_CATALOGUE: readonly GearProduct[] = (
+  Object.entries(GEAR_SAMPLES) as [GearKey, (typeof GEAR_SAMPLES)[GearKey]][]
+).map(([gear, [asin, details]]) => ({
+  id: `exemple-${gear}`,
+  name: `Exemple ${gear}`,
+  brand: 'Atelier Exemple',
+  gear,
+  asin,
+  details,
+  sourceUrl: `https://exemple.test/${gear}`,
+  validated: '2026-10-21',
+}));

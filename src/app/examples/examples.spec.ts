@@ -1,14 +1,14 @@
 import { TestBed } from '@angular/core/testing';
-import { amazonUrl, type Product } from '../tea/products';
-import { FIXTURE_CATALOGUE } from '../tea/products.fixture';
+import { amazonUrl, type Example } from '../tea/products';
+import { FIXTURE_CATALOGUE, FIXTURE_GEAR_CATALOGUE } from '../tea/products.fixture';
 import { Examples } from './examples';
 
-const PRODUCTS: readonly Product[] = [
+const PRODUCTS: readonly Example[] = [
   { ...FIXTURE_CATALOGUE.find((item) => item.tea === 'fruit')!, name: 'Mélange rouge' },
   { ...FIXTURE_CATALOGUE.find((item) => item.tea === 'green')!, name: 'Sencha doux' },
 ];
 
-async function render(products: readonly Product[] = PRODUCTS) {
+async function render(products: readonly Example[] = PRODUCTS) {
   const fixture = TestBed.createComponent(Examples);
   fixture.componentRef.setInput('products', products);
   await fixture.whenStable();
@@ -37,12 +37,27 @@ describe('Examples', () => {
 
   it('affiche le nom, la marque et la composition complète de chaque produit', async () => {
     const element = await render([
-      { ...PRODUCTS[0], ingredients: ['Hibiscus', 'Pomme', 'Églantier'] },
+      {
+        ...FIXTURE_CATALOGUE.find((item) => item.tea === 'fruit')!,
+        name: 'Mélange rouge',
+        ingredients: ['Hibiscus', 'Pomme', 'Églantier'],
+      },
     ]);
     const text = element.textContent!.replace(/[ \t\n]+/g, ' ');
     expect(text).toContain('Mélange rouge');
     expect(text).toContain('Maison Exemple');
     expect(text).toContain('Composition : Hibiscus, Pomme, Églantier');
+  });
+
+  it('affiche les caractéristiques d’un accessoire, sans composition', async () => {
+    const infuser = FIXTURE_GEAR_CATALOGUE.find((item) => item.gear === 'infuser')!;
+    const element = await render([infuser]);
+    const text = element.textContent!.replace(/[ \t\n]+/g, ' ');
+    expect(text).toContain(infuser.name);
+    expect(text).toContain(infuser.brand);
+    expect(text).toContain('Caractéristiques : Acier inoxydable, Panier de 8 cm');
+    expect(text).not.toContain('Composition');
+    expect(element.querySelector('a')?.getAttribute('href')).toBe(amazonUrl(infuser.asin));
   });
 
   it('ne montre ni image, ni prix, ni note', async () => {

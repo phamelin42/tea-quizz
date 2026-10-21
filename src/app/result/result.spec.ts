@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { QUESTIONS } from '../tea/questions';
-import { CATALOGUE, PRODUCT_CATALOGUE } from '../tea/products';
-import { FIXTURE_CATALOGUE } from '../tea/products.fixture';
+import { CATALOGUE, PRODUCT_CATALOGUE, PRODUCT_GEAR_CATALOGUE } from '../tea/products';
+import { FIXTURE_CATALOGUE, FIXTURE_GEAR_CATALOGUE } from '../tea/products.fixture';
 import { ANALYSIS_DELAY, ANSWER_DELAY, QuizService } from '../tea/quiz.service';
 import { Result } from './result';
 
@@ -10,9 +10,15 @@ describe('Result', () => {
   afterEach(() => vi.useRealTimers());
 
   /** Le catalogue est toujours fourni : le test ne dépend pas de ce que contient `CATALOGUE`. */
-  async function render(catalogue: typeof FIXTURE_CATALOGUE = []) {
+  async function render(
+    catalogue: typeof FIXTURE_CATALOGUE = [],
+    gear: typeof FIXTURE_GEAR_CATALOGUE = [],
+  ) {
     TestBed.configureTestingModule({
-      providers: [{ provide: PRODUCT_CATALOGUE, useValue: catalogue }],
+      providers: [
+        { provide: PRODUCT_CATALOGUE, useValue: catalogue },
+        { provide: PRODUCT_GEAR_CATALOGUE, useValue: gear },
+      ],
     });
     const quiz = TestBed.inject(QuizService);
     quiz.start();
@@ -42,6 +48,16 @@ describe('Result', () => {
     const text = element.textContent!.replace(/\s+/g, ' ');
     expect(text).not.toContain('Partenaire Amazon');
     expect(text).not.toContain('sans classement');
+  });
+
+  it('affiche les accessoires dans la carte du matériel', async () => {
+    const element = await render([], FIXTURE_GEAR_CATALOGUE);
+    const blocks = element.querySelectorAll('app-examples');
+    expect(blocks).toHaveLength(1);
+    expect(blocks[0].closest('article')?.querySelector('[slot="title"]')?.textContent).toMatch(
+      /infuseur|fouet|carafe|théière|gaiwan/i,
+    );
+    expect(blocks[0].textContent).toContain('Caractéristiques');
   });
 
   it('garde l’encart « Ceci n’est pas un avis médical »', async () => {

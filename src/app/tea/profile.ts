@@ -47,8 +47,10 @@ export interface TeaCard {
   readonly texture: string;
   readonly text: string;
   readonly note?: string;
-  /** Le thé ou l’infusion illustré ; absent sur le matériel, qui n’a pas de produit. */
+  /** Le thé ou l’infusion illustré ; absent sur la carte du matériel. */
   readonly tea?: TeaKey;
+  /** Le matériel illustré ; présent seulement sur la carte du matériel. */
+  readonly gear?: GearKey;
   /** À chercher sur l’étiquette. */
   readonly labels: readonly string[];
 }
@@ -242,9 +244,11 @@ export function teas(profile: Profile): TeaCard[] {
     card('alternative', 'Pour varier', profile.alternative),
   ];
   if (profile.complement) list.push(card('complement', 'Sans caféine', profile.complement));
-  const gear = GEARS[gearFor(profile)];
+  const gearKey = gearFor(profile);
+  const gear = GEARS[gearKey];
   list.push({
     key: 'gear',
+    gear: gearKey,
     when: 'Le matériel',
     sky: gear.sky,
     emblem: gear.emblem,

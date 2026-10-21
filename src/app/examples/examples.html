@@ -11,9 +11,15 @@
         {{ product.name }}<span class="fd-sr"> (nouvel onglet)</span>
       </a>
       <span class="app-examples__brand">{{ product.brand }}</span>
-      <span class="app-examples__composition"
-        >Composition&nbsp;: {{ product.ingredients.join(', ') }}</span
-      >
+      @if (isGear(product)) {
+        <span class="app-examples__details"
+          >Caractéristiques&nbsp;: {{ product.details.join(', ') }}</span
+        >
+      } @else {
+        <span class="app-examples__composition"
+          >Composition&nbsp;: {{ product.ingredients.join(', ') }}</span
+        >
+      }
     </li>
   }
 </ul>

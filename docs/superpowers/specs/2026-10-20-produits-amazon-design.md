@@ -64,13 +64,13 @@ export interface Product {
 1. PR « Structure » : types, affichage, mention, tests, règles. Catalogue vide, donc rien de visible en production.
 2. PR « Catalogue » : tableau (produit, composition, source, lien à contrôler) remis à Phil ; seuls les produits validés sont ajoutés.
 
-Catalogue initial : 15 produits (`src/app/tea/catalogue.ts`), proposés le 2026-10-21, à valider par Phil lien par lien avant publication (PR en brouillon). Au plus deux produits par type, de marques différentes ; un type sans produit fiable n'affiche rien.
+Catalogue initial : 15 produits (`src/app/tea/catalogue.ts`), proposés le 2026-10-21, à valider par Phil lien par lien avant publication (PR en brouillon). Au plus trois produits par type (porté de deux à trois le 21/10/2026), de marques différentes ; un type sans produit fiable n'affiche rien.
 
 Quality gates avant chaque PR : `lint`, `typecheck`, `test`, `build`, `e2e` (axe Jour/Nuit, 320 px, état avec produits), `format:check`.
 
 ## Hors périmètre
 
-PA-API, prix et images Amazon, mesure Umami des clics (le site n'est pas encore enregistré), modification de Fuda, matériel (`GEARS`) : il reste sans produit dans cette étape.
+PA-API, prix et images Amazon, mesure Umami des clics (le site n'est pas encore enregistré), modification de Fuda, matériel (`GEARS`) : sans produit dans la première étape, ajouté le 21/10/2026 (`GEAR_CATALOGUE`, trois accessoires au plus par matériel, caractéristiques au lieu de composition).
 
 ## À la charge de Phil
 

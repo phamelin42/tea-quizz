@@ -1,11 +1,15 @@
-import { TEAS, type TeaKey } from './content';
-import { FIXTURE_CATALOGUE, FLAVOURED_GREEN } from './products.fixture';
+import { GEARS, TEAS, type GearKey, type TeaKey } from './content';
+import { FIXTURE_CATALOGUE, FIXTURE_GEAR_CATALOGUE, FLAVOURED_GREEN } from './products.fixture';
 import {
   AFFILIATE_TAG,
   amazonUrl,
   CATALOGUE,
   catalogueDefects,
   examplesFor,
+  GEAR_CATALOGUE,
+  gearDefects,
+  gearExamplesFor,
+  type GearProduct,
   mentionsBrand,
   type Product,
 } from './products';
@@ -55,10 +59,10 @@ describe('CATALOGUE', () => {
     expect(catalogueDefects(CATALOGUE)).toEqual([]);
   });
 
-  it('présente au plus deux produits par type, de marques différentes, sans classement', () => {
+  it('présente au plus trois produits par type, de marques différentes, sans classement', () => {
     for (const key of Object.keys(TEAS) as TeaKey[]) {
       const brands = CATALOGUE.filter((item) => item.tea === key).map((item) => item.brand);
-      expect(brands.length, key).toBeLessThanOrEqual(2);
+      expect(brands.length, key).toBeLessThanOrEqual(3);
       expect(new Set(brands).size, key).toBe(brands.length);
     }
   });
@@ -502,5 +506,93 @@ describe('mentionsBrand', () => {
   it('ne repère rien dans un texte sans marque ou avec un catalogue vide', () => {
     expect(mentionsBrand('Un thé vert', FIXTURE_CATALOGUE)).toBe(false);
     expect(mentionsBrand('Maison Exemple', [])).toBe(false);
+  });
+});
+
+describe('GEAR_CATALOGUE', () => {
+  it('est valide, et ses ids ne recoupent pas ceux des thés', () => {
+    expect(GEAR_CATALOGUE.length).toBeGreaterThan(0);
+    expect(gearDefects(GEAR_CATALOGUE, CATALOGUE)).toEqual([]);
+  });
+
+  it('couvre chaque matériel de la carte, trois produits au plus', () => {
+    for (const key of Object.keys(GEARS) as GearKey[]) {
+      const count = GEAR_CATALOGUE.filter((item) => item.gear === key).length;
+      expect(count, key).toBeGreaterThan(0);
+      expect(count, key).toBeLessThanOrEqual(3);
+    }
+  });
+});
+
+describe('gearDefects', () => {
+  const sample = FIXTURE_GEAR_CATALOGUE[0];
+  const altered = (change: Partial<GearProduct>): GearProduct[] => [{ ...sample, ...change }];
+
+  it('ne signale rien pour un catalogue valide', () => {
+    expect(gearDefects(FIXTURE_GEAR_CATALOGUE, FIXTURE_CATALOGUE)).toEqual([]);
+  });
+
+  it('signale un ASIN invalide', () => {
+    expect(gearDefects(altered({ asin: 'b0testge01' })).join()).toContain('ASIN invalide');
+    expect(gearDefects(altered({ asin: 'B0TESTGE011' })).join()).toContain('ASIN invalide');
+  });
+
+  it('signale une source hors https et une date invalide', () => {
+    expect(gearDefects(altered({ sourceUrl: 'http://exemple.test' })).join()).toContain(
+      'source hors https',
+    );
+    expect(gearDefects(altered({ validated: '21/10/2026' })).join()).toContain('date');
+  });
+
+  it('signale un matériel inconnu', () => {
+    expect(gearDefects(altered({ gear: 'theiere' as GearKey })).join()).toContain(
+      'matériel inconnu',
+    );
+  });
+
+  it('signale des caractéristiques vides ou blanches', () => {
+    expect(gearDefects(altered({ details: [] })).join()).toContain('caractéristiques vides');
+    expect(gearDefects(altered({ details: ['Bambou', '  '] })).join()).toContain(
+      'caractéristiques vides',
+    );
+  });
+
+  it('signale un id en double, y compris avec celui d’un thé', () => {
+    expect(gearDefects([sample, sample]).join()).toContain('id en double');
+    const tea = { ...FIXTURE_CATALOGUE[0], id: sample.id };
+    expect(gearDefects([sample], [tea]).join()).toContain('id en double');
+  });
+});
+
+describe('gearExamplesFor', () => {
+  const gearCard = (gear: GearKey | undefined): TeaCard => ({
+    ...teas(analyse(answers()))[0],
+    gear,
+  });
+
+  it('ne renvoie que les accessoires du matériel de la carte', () => {
+    const found = gearExamplesFor(gearCard('infuser'), FIXTURE_GEAR_CATALOGUE);
+    expect(found.map((item) => item.id)).toEqual(['exemple-infuser']);
+  });
+
+  it('ne renvoie rien pour une carte de thé', () => {
+    expect(gearExamplesFor(gearCard(undefined), FIXTURE_GEAR_CATALOGUE)).toEqual([]);
+  });
+
+  it('en garde trois au plus, dans l’ordre du catalogue', () => {
+    const many = ['a', 'b', 'c', 'd'].map((suffix) => ({
+      ...FIXTURE_GEAR_CATALOGUE[0],
+      id: `exemple-whisk-${suffix}`,
+      gear: 'whisk' as const,
+    }));
+    expect(gearExamplesFor(gearCard('whisk'), many).map((item) => item.id)).toEqual([
+      'exemple-whisk-a',
+      'exemple-whisk-b',
+      'exemple-whisk-c',
+    ]);
+  });
+
+  it('ne renvoie rien avec un catalogue vide', () => {
+    expect(gearExamplesFor(gearCard('whisk'), [])).toEqual([]);
   });
 });

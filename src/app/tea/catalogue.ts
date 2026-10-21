@@ -199,4 +199,23 @@ export const CATALOGUE: readonly Product[] = [
     sourceUrl: 'https://www.les2marmottes.com/products/melee-de-fruits-cassis-framboise-pomme',
     validated: '2026-10-21',
   },
+  {
+    id: 'twinings-fruit-01',
+    name: 'Infusion à l’hibiscus aromatisée fraise, myrtille et grenade, sachets',
+    brand: 'Twinings',
+    tea: 'fruit',
+    asin: 'B0FD3YN7WR',
+    ingredients: [
+      'Hibiscus',
+      'feuilles de mûre',
+      'citronnelle',
+      'arôme naturel (7%)',
+      'réglisse',
+      'arôme naturel de myrtille avec d’autres arômes naturels (4%)',
+      'arôme naturel de grenade avec d’autres arômes naturels (1%)',
+    ],
+    flavoured: true,
+    sourceUrl: 'https://twinings.fr/products/infusion-ayurveda-fraise-myrtille-grenade',
+    validated: '2026-10-21',
+  },
 ];

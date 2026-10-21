@@ -182,6 +182,69 @@ describe('catalogueDefects', () => {
     ).toEqual([]);
   });
 
+  // Les noms usuels de thé se disent sans le mot « thé » : « oolong (Taiwan, China) » est bien un thé.
+  const TEA_NAMES = [
+    'oolong (Taiwan, China) (95%)',
+    'Wu long',
+    'Wulong',
+    'Sencha',
+    'Gyokuro',
+    'Bancha',
+    'Genmaicha',
+    'Hojicha',
+    'Darjeeling',
+    'Assam',
+    'Ceylan',
+    'Ceylon (Sri Lanka)',
+    'Keemun',
+    'Lapsang Souchong',
+    'Yunnan',
+    'Earl Grey',
+    'Gunpowder',
+  ];
+
+  it('reconnaît comme thé les noms usuels de thé, même sans le mot « thé »', () => {
+    for (const ingredient of TEA_NAMES) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'black', ingredients: [ingredient], flavoured: true })),
+        ingredient,
+      ).toEqual([]);
+    }
+    expect(
+      catalogueDefects(withFirst({ tea: 'oolong', ingredients: ['oolong (Taiwan, China) (95%)'] })),
+    ).toEqual([]);
+  });
+
+  it('signale une infusion dont la composition contient un nom de thé', () => {
+    for (const ingredient of TEA_NAMES) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'fruit', ingredients: ['Hibiscus', ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining('infusion')]);
+    }
+    for (const ingredient of ['Oolong', 'Assam', 'Darjeeling', 'Matcha', 'Pu-erh']) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'rooibos', ingredients: ['Rooibos', ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining('infusion')]);
+    }
+  });
+
+  it('ne prend pas la cannelle de Ceylan pour du thé, ni dans un chaï ni dans une infusion', () => {
+    for (const ingredient of ['Cannelle de Ceylan', 'Cannelle Ceylan', 'Cinnamon from Ceylon']) {
+      expect(
+        catalogueDefects([{ ...product('chai'), ingredients: [ingredient, 'Gingembre'] }]),
+        ingredient,
+      ).toEqual([expect.stringContaining('thé')]);
+      expect(
+        catalogueDefects(
+          withFirst({ tea: 'fruit', ingredients: ['Hibiscus', ingredient], flavoured: true }),
+        ),
+        ingredient,
+      ).toEqual([]);
+    }
+  });
+
   it('signale un thé dont aucun ingrédient n’est du thé', () => {
     expect(catalogueDefects(withFirst({ tea: 'green', ingredients: ['Rooibos'] }))).toEqual([
       expect.stringContaining('thé'),

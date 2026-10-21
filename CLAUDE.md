@@ -21,7 +21,7 @@ Voir les commandes communes (`npm start`, `test`, `lint`, `typecheck`, `build`, 
 - `src/app/` : un dossier par composant ; `app` affiche l'écran du moment (`home`, `question`, `analysis`, `result`).
 - `src/app/tea/` : questions (`questions.ts`), textes (`content.ts`), calcul du profil, des thés, des repères d'étiquette et du rituel (`profile.ts`, fonctions pures), parcours (`quiz.service.ts`). `profile.spec.ts` parcourt toutes les combinaisons de réponses. `catalogue.ts` : les produits (données seules) ; `products.ts` : règles de validation, `examplesFor` et jeton `PRODUCT_CATALOGUE` (il ré-exporte `CATALOGUE`).
 - `src/app/examples/` : bloc d'exemples de produits d'un type de thé.
-- `e2e/` : Playwright (build de production servi par `http-server` sur le port 4300), clavier, 320 px, axe Jour/Nuit sur chaque écran.
+- `e2e/` : Playwright (build de production servi par `http-server` sur le port 4300, ou `E2E_PORT` ; jamais un serveur réutilisé), clavier, 320 px, axe Jour/Nuit sur chaque écran.
 
 ## Règles à ne pas casser
 

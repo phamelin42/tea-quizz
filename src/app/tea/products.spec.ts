@@ -4,7 +4,6 @@ import {
   AFFILIATE_NOTICE,
   AFFILIATE_TAG,
   amazonUrl,
-  CATALOGUE,
   catalogueDefects,
   EXAMPLES_NOTE,
   examplesFor,
@@ -59,12 +58,6 @@ describe('amazonUrl', () => {
   it('construit le lien amazon.fr avec le tag d’affiliation', () => {
     expect(AFFILIATE_TAG).toBe('phamelin-21');
     expect(amazonUrl('B0TESTTE01')).toBe('https://www.amazon.fr/dp/B0TESTTE01?tag=phamelin-21');
-  });
-});
-
-describe('CATALOGUE', () => {
-  it('est vide dans cette PR : aucun produit n’entre avant la validation de Phil', () => {
-    expect(CATALOGUE).toEqual([]);
   });
 });
 

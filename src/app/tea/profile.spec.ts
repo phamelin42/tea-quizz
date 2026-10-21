@@ -292,22 +292,23 @@ describe('thés et rituel', () => {
     expect(count).toBe(QUESTIONS.reduce((total, q) => total * q.options.length, 1));
 
     // Aucune promesse de résultat, aucun vocabulaire médical : texte relu en entier.
-    const everyText = [
+    const editorial = [
       ...texts,
       ...Object.values(TEAS).flatMap((tea) => [tea.why, tea.flavour, tea.note ?? '']),
       ...Object.values(FAMILIES).map((family) => family.text),
       ...Object.values(GEARS).map((gear) => gear.text),
       ...Object.values(LABEL_TIPS).map((tip) => tip.why),
       ...Object.values(START_ADVICE),
-      ...catalogueTexts(CATALOGUE),
       AFFILIATE_NOTICE,
       EXAMPLES_NOTE,
     ];
+    const everyText = [...editorial, ...catalogueTexts(CATALOGUE)];
     const promises = everyText.filter((text) => PROMISES.test(text));
     expect(promises).toEqual([]);
 
-    // Les marques ne vivent que dans products.ts : ni le vrai catalogue ni la fixture ne fuient ici.
-    const branded = everyText.filter((text) =>
+    // Les marques ne vivent que dans le catalogue : aucun texte éditorial n’en cite, ni du vrai
+    // catalogue ni de la fixture (les textes du catalogue lui-même citent évidemment leur marque).
+    const branded = editorial.filter((text) =>
       mentionsBrand(text, [...CATALOGUE, ...FIXTURE_CATALOGUE]),
     );
     expect(branded).toEqual([]);

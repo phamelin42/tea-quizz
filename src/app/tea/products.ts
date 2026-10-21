@@ -1,5 +1,6 @@
 import { InjectionToken } from '@angular/core';
 import { TEAS, type TeaKey } from './content';
+import { CATALOGUE } from './catalogue';
 import { labelHints, type Profile, type TeaCard } from './profile';
 
 /** Défini ici seulement : le tag d’affiliation Partenaires Amazon du site. */
@@ -31,8 +32,8 @@ export interface Product {
   readonly validated: string;
 }
 
-/** Vide tant que Phil n’a pas ouvert et validé chaque lien Amazon : aucun ASIN ne se devine. */
-export const CATALOGUE: readonly Product[] = [];
+/** Les données vivent dans `catalogue.ts` ; elles sont ré-exportées ici pour garder un seul point d’entrée. */
+export { CATALOGUE };
 
 /** Jeton plutôt qu’import direct, pour que les tests fournissent leur propre catalogue. */
 export const PRODUCT_CATALOGUE = new InjectionToken<readonly Product[]>('PRODUCT_CATALOGUE', {

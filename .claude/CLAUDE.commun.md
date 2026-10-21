@@ -375,7 +375,7 @@ manquante). Un avertissement de budget se justifie dans la PR.
   uniquement ; distinguer ce qui est établi de ce qui est traditionnel ou débattu ; capitales ou
   chiffres ambigus : retenir le plus cité et nommer l'autre.
 - Santé, peau, alimentation : **aucun conseil médical**, aucun diagnostic, aucune promesse de
-  résultat, aucune marque recommandée ; mentionner caféine et interactions quand c'est pertinent.
+  résultat ; mentionner caféine et interactions quand c'est pertinent.
 - Vocabulaire exact, même quand il est moins vendeur (ex. lois-votes : « Adopté par l'Assemblée »,
   « ont voté », jamais « présents »). Un taux calculé par nous est présenté comme tel.
 - **Quiz : rien ne donne la réponse avant l'envoi** — ni texte alternatif, ni anecdote, ni astuce,

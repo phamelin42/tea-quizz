@@ -20,7 +20,11 @@ export interface Product {
   readonly asin: string;
   /** Composition recopiée de la fiche du fabricant. */
   readonly ingredients: readonly string[];
-  /** Vrai si le produit contient des arômes ou des ajouts. */
+  /**
+   * « Avec de la saveur » : vrai dès qu’une saveur est ajoutée au thé ou à la plante (arôme,
+   * épice, fruit, fleur, morceaux), pas seulement un arôme. Faux quand la composition se limite
+   * au thé ou à la plante elle-même.
+   */
   readonly flavoured: boolean;
   readonly sourceUrl: string;
   /** Date de validation du lien par Phil (AAAA-MM-JJ). */
@@ -36,6 +40,13 @@ export const PRODUCT_CATALOGUE = new InjectionToken<readonly Product[]>('PRODUCT
   factory: () => CATALOGUE,
 });
 
+/**
+ * Les thés dont la recette est un mélange : sans épices, ce ne serait pas un chai. Ils sont donc
+ * « avec de la saveur » par nature, et la carte « pur » (qui écarte les produits aromatisés pour
+ * montrer le thé lui-même) ne doit pas les écarter, sans quoi elle ne montrerait jamais de chai.
+ */
+const NATURALLY_FLAVOURED: readonly TeaKey[] = ['chai'];
+
 const MAX_EXAMPLES = 3;
 const ASIN = /^[A-Z0-9]{10}$/;
 const DATE = /^\d{4}-\d{2}-\d{2}$/;
@@ -50,6 +61,48 @@ const TEA_IN_HERBAL =
   /camellia|caf[ée]ine|caffeine|(?<!\p{L})(?:th[ée]|tea|mat[ée]|yerba|guaran[aá]|guayusa|[ck]ola|caf[ée]|coffee|yaupon)(?!\p{L})/iu;
 /** Mêmes bornes que ci-dessus : sans elles, « Menthe » (« nthe ») passerait pour du thé. */
 const TEA_IN_LEAF = /camellia|(?<!\p{L})th[ée](?!\p{L})|(?<!\p{L})tea(?!\p{L})|matcha|pu-?erh/iu;
+
+/**
+ * Un arôme ou une saveur annoncés : interdit dans un produit « sans saveur », thé ou infusion.
+ * Mêmes bornes Unicode que ci-dessus, posées au début seulement pour couvrir « arômes », « saveurs ».
+ */
+const AROMA = /(?<!\p{L})(?:ar[ôo]me|aroma|flavou?r|saveur)/iu;
+/**
+ * Ce qu’on ajoute à un thé pour le parfumer : épices, agrumes, fruits, fleurs, menthe. Réservé aux
+ * thés, car ce sont les ingrédients ordinaires d’une infusion. « Orange Pekoe » est un grade de
+ * feuille, pas une orange ajoutée.
+ */
+const ADDED_TO_LEAF =
+  /(?<!\p{L})(?:cannelle|cinnamon|cardamome|gingembre|girofle|vanill[ae]|bergamote?|earl\s+grey|citron|orange(?!\s+pekoe)|fruit|fleur|p[ée]tale|menthe|rose|jasmin|[ée]pice|parfum|caramel|chocolat|p[êe]che|fraise|cerise|framboise|mangue)/iu;
+/** Note de bas de liste (« * issu de l’agriculture biologique », « bio ») : ce n’est pas un ingrédient. */
+const FOOTNOTE = /^(?:\*|bio(?:logique)?$)/iu;
+/** Le qualificatif de fin d’un ingrédient (« * », « (Chine) »), pour compter les ingrédients distincts. */
+const QUALIFIER = /(?:\s*(?:\*+|\([^)]*\)))+$/u;
+
+/** Le nombre d’ingrédients distincts, hors notes de bas de liste et qualificatifs. */
+function distinctIngredients(ingredients: readonly string[]): number {
+  return new Set(
+    ingredients
+      .map((ingredient) => ingredient.trim())
+      .filter((ingredient) => !FOOTNOTE.test(ingredient))
+      .map((ingredient) => ingredient.replace(QUALIFIER, '').trim().toLowerCase()),
+  ).size;
+}
+
+/**
+ * Ce qui contredit `flavoured: false`, ou `undefined` : un arôme annoncé, et pour un thé une épice,
+ * un fruit ou une fleur, puis tout ingrédient en plus du thé lui-même.
+ */
+function addedFlavour(item: Product, leaf: boolean): string | undefined {
+  const patterns = leaf ? [AROMA, ADDED_TO_LEAF] : [AROMA];
+  const found = item.ingredients.find((ingredient) => patterns.some((re) => re.test(ingredient)));
+  // Deux formulations distinctes : un test sur l’une ne doit pas passer grâce à l’autre.
+  if (found) return `la composition annonce « ${found} », une saveur ajoutée`;
+  if (leaf && distinctIngredients(item.ingredients) > 1) {
+    return 'la composition compte plusieurs ingrédients, or un thé nature n’a que le thé';
+  }
+  return undefined;
+}
 
 export function amazonUrl(asin: string): string {
   return `https://www.amazon.fr/dp/${asin}?tag=${AFFILIATE_TAG}`;
@@ -79,13 +132,22 @@ export function catalogueDefects(catalogue: readonly Product[]): string[] {
       defects.push(`${where} : composition vide`);
       continue;
     }
-    if (TEAS[item.tea].caffeine) {
+    if (NATURALLY_FLAVOURED.includes(item.tea) && !item.flavoured) {
+      defects.push(
+        `${where} : un ${item.tea} sans épices n’est pas un ${item.tea} (flavoured doit être vrai)`,
+      );
+    }
+    const leaf = TEAS[item.tea].caffeine;
+    if (leaf) {
       if (!item.ingredients.some((ingredient) => TEA_IN_LEAF.test(ingredient))) {
         defects.push(`${where} : un thé doit contenir du thé`);
+        continue;
       }
     } else if (item.ingredients.some((ingredient) => TEA_IN_HERBAL.test(ingredient))) {
       defects.push(`${where} : une infusion ne contient ni thé ni plante à caféine`);
     }
+    const added = item.flavoured ? undefined : addedFlavour(item, leaf);
+    if (added) defects.push(`${where} : flavoured est faux mais ${added}`);
   }
   return defects;
 }
@@ -101,7 +163,7 @@ export function examplesFor(
   return catalogue
     .filter((item) => item.tea === card.tea)
     .filter((item) => profile.caffeine !== 'none' || !TEAS[item.tea].caffeine)
-    .filter((item) => !pure || !item.flavoured)
+    .filter((item) => !pure || !item.flavoured || NATURALLY_FLAVOURED.includes(item.tea))
     .slice(0, MAX_EXAMPLES);
 }
 

@@ -1,5 +1,5 @@
 import { TEAS, type TeaKey } from './content';
-import { FIXTURE_CATALOGUE } from './products.fixture';
+import { FIXTURE_CATALOGUE, FLAVOURED_GREEN } from './products.fixture';
 import {
   AFFILIATE_NOTICE,
   AFFILIATE_TAG,
@@ -208,6 +208,149 @@ describe('catalogueDefects', () => {
     expect(catalogueDefects(withFirst({ tea: 'puerh', ingredients: ['Pu-erh'] }))).toEqual([]);
     expect(catalogueDefects(withFirst({ tea: 'puerh', ingredients: ['Puerh'] }))).toEqual([]);
   });
+
+  it('signale un chai qui n’est pas « avec de la saveur » : sans épices, ce n’est pas un chai', () => {
+    expect(product('chai').flavoured).toBe(true);
+    expect(
+      catalogueDefects([{ ...product('chai'), flavoured: false, ingredients: ['Thé noir'] }]),
+    ).toEqual([expect.stringContaining('chai')]);
+    expect(catalogueDefects([product('chai')])).toEqual([]);
+  });
+
+  it('signale un thé sans saveur ajoutée dont la composition a plusieurs ingrédients', () => {
+    expect(
+      catalogueDefects(withFirst({ ingredients: ['Thé vert sencha', 'Sucre de canne'] })),
+    ).toEqual([expect.stringContaining('plusieurs ingrédients')]);
+    // Le même thé écrit deux fois ne fait pas deux ingrédients.
+    expect(
+      catalogueDefects(withFirst({ tea: 'black', ingredients: ['Thé noir', 'Thé noir*'] })),
+    ).toEqual([]);
+  });
+
+  it('tolère « bio », l’astérisque et un qualificatif entre parenthèses sur un thé seul', () => {
+    for (const ingredients of [
+      ['Thé vert bio'],
+      ['Thé vert*'],
+      ['Thé vert (Chine)'],
+      ['Thé vert bio (Chine)*'],
+      ['Thé vert*', '*issu de l’agriculture biologique'],
+      ['Thé vert', 'bio'],
+    ]) {
+      expect(catalogueDefects(withFirst({ ingredients })), ingredients.join(', ')).toEqual([]);
+    }
+  });
+
+  it('accepte un thé aromatisé qui a plusieurs ingrédients', () => {
+    expect(catalogueDefects([FLAVOURED_GREEN])).toEqual([]);
+  });
+
+  // Un seul ingrédient par chaîne : la règle du nombre d’ingrédients ne peut pas masquer le mot-clé.
+  it('signale chaque arôme, épice, fruit ou fleur ajouté à un thé « sans saveur »', () => {
+    for (const flavour of [
+      'arôme naturel',
+      'arômes',
+      'aroma',
+      'aromatisé',
+      'natural flavour',
+      'flavor',
+      'saveur',
+      'cannelle',
+      'cinnamon',
+      'cardamome',
+      'gingembre',
+      'clou de girofle',
+      'vanille',
+      'vanilla',
+      'bergamote',
+      'bergamot',
+      'Earl Grey',
+      'zeste de citron',
+      'écorces d’orange',
+      'fruits',
+      'fleurs',
+      'pétales',
+      'menthe',
+      'rose',
+      'jasmin',
+      'épices',
+      'parfumé',
+      'caramel',
+      'chocolat',
+      'pêche',
+      'fraise',
+      'cerise',
+      'framboise',
+      'mangue',
+    ]) {
+      const ingredient = `Thé vert ${flavour}`;
+      expect(catalogueDefects(withFirst({ ingredients: [ingredient] })), ingredient).toEqual([
+        expect.stringContaining(`annonce « ${ingredient} »`),
+      ]);
+    }
+  });
+
+  it('signale aussi un arôme ou une épice écrit seul à côté du thé', () => {
+    for (const ingredient of ['Arôme naturel', 'Cannelle', 'Pétales de rose et de bleuet']) {
+      expect(
+        catalogueDefects(withFirst({ ingredients: ['Thé vert', ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining(`annonce « ${ingredient} »`)]);
+    }
+  });
+
+  it('ne prend pas pour une saveur ajoutée les thés nature usuels', () => {
+    for (const ingredient of [
+      'Thé noir Assam',
+      'Thé vert Gunpowder',
+      'Thé vert Sencha',
+      'Thé noir Ceylan',
+      'Thé blanc Bai Mu Dan',
+      'Thé oolong Tie Guan Yin',
+      'Thé noir Assam Orange Pekoe',
+    ]) {
+      expect(catalogueDefects(withFirst({ ingredients: [ingredient] })), ingredient).toEqual([]);
+    }
+  });
+
+  it('ne prend pas « Orange Pekoe », un grade de feuille, pour une orange ajoutée', () => {
+    expect(
+      catalogueDefects(withFirst({ tea: 'black', ingredients: ['Thé noir Assam Orange Pekoe'] })),
+    ).toEqual([]);
+  });
+
+  it('ne signale qu’une fois un thé « sans saveur » qui a un arôme et plusieurs ingrédients', () => {
+    expect(
+      catalogueDefects(withFirst({ ingredients: ['Thé vert', 'Arôme naturel de jasmin'] })),
+    ).toEqual([expect.stringContaining('annonce')]);
+  });
+
+  it('signale une infusion « sans saveur » dont la composition annonce un arôme', () => {
+    for (const ingredient of ['Arôme naturel', 'Arômes de vanille', 'Aroma', 'Flavouring']) {
+      expect(
+        catalogueDefects(withFirst({ tea: 'fruit', ingredients: ['Hibiscus', ingredient] })),
+        ingredient,
+      ).toEqual([expect.stringContaining(`annonce « ${ingredient} »`)]);
+    }
+  });
+
+  it('laisse à une infusion ses plantes, fruits et fleurs sans les prendre pour une saveur ajoutée', () => {
+    expect(
+      catalogueDefects(
+        withFirst({
+          tea: 'fruit',
+          ingredients: ['Hibiscus', 'Citron', 'Pétales de rose', 'Menthe'],
+        }),
+      ),
+    ).toEqual([]);
+  });
+
+  it('accepte une infusion « avec de la saveur » qui annonce un arôme', () => {
+    expect(
+      catalogueDefects(
+        withFirst({ tea: 'fruit', ingredients: ['Hibiscus', 'Arôme naturel'], flavoured: true }),
+      ),
+    ).toEqual([]);
+  });
 });
 
 describe('examplesFor', () => {
@@ -242,6 +385,24 @@ describe('examplesFor', () => {
     };
     const found = examplesFor(cardFor('black'), LEAF_PROFILE, [flavoured, product('black')]);
     expect(found.map((item) => item.id)).toEqual(['exemple-black']);
+  });
+
+  it('garde le chai, aromatisé par nature, même quand le repère « pur » est affiché', () => {
+    expect(labelHints(LEAF_PROFILE).map((hint) => hint.key)).toContain('pure');
+    expect(product('chai').flavoured).toBe(true);
+    const found = examplesFor(cardFor('chai'), LEAF_PROFILE, FIXTURE_CATALOGUE);
+    expect(found.map((item) => item.id)).toEqual(['exemple-chai']);
+  });
+
+  it('écarte toujours un thé vert aromatisé d’une carte de thé vert « pur »', () => {
+    const found = examplesFor(cardFor('green'), LEAF_PROFILE, [FLAVOURED_GREEN, product('green')]);
+    expect(found.map((item) => item.id)).toEqual(['exemple-green']);
+    expect(examplesFor(cardFor('green'), LEAF_PROFILE, [FLAVOURED_GREEN])).toEqual([]);
+  });
+
+  it('ne fait pas du chai une exception pour un autre thé : un thé noir aromatisé reste écarté', () => {
+    const flavouredBlack: Product = { ...product('black'), id: 'noir-aromatise', flavoured: true };
+    expect(examplesFor(cardFor('black'), LEAF_PROFILE, [flavouredBlack])).toEqual([]);
   });
 
   it('garde les produits aromatisés quand le repère « pur » n’est pas affiché', () => {

@@ -10,7 +10,6 @@ import {
 import { FdAlert, FdBadge, FdButton, FdCard } from '@phamelin/fuda';
 import { Examples } from '../examples/examples';
 import { FAMILIES, MOMENT_LABELS, SERVING_LABELS, START_ADVICE } from '../tea/content';
-import { AFFILIATE_NOTICE, EXAMPLES_NOTE } from '../tea/products';
 import { QuizService } from '../tea/quiz.service';
 
 const MINUTES = { '3': 'moins de 3 minutes', '5': 'environ 5 minutes', '10': '10 minutes ou plus' };
@@ -44,10 +43,6 @@ export class Result {
       servingLabel: SERVING_LABELS[profile.serving],
       minutes: MINUTES[profile.time],
       advice: START_ADVICE[profile.experience],
-      // La mention accompagne les liens : sans exemple affiché, elle n’a pas lieu d’être.
-      affiliate: result.teas.some((card) => card.examples.length > 0),
-      notice: AFFILIATE_NOTICE,
-      note: EXAMPLES_NOTE,
     };
   });
 

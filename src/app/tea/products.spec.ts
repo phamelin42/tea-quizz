@@ -1,12 +1,10 @@
 import { TEAS, type TeaKey } from './content';
 import { FIXTURE_CATALOGUE, FLAVOURED_GREEN } from './products.fixture';
 import {
-  AFFILIATE_NOTICE,
   AFFILIATE_TAG,
   amazonUrl,
   CATALOGUE,
   catalogueDefects,
-  EXAMPLES_NOTE,
   examplesFor,
   mentionsBrand,
   type Product,
@@ -43,17 +41,6 @@ function cardFor(tea: TeaKey | undefined): TeaCard {
 
 const LEAF_PROFILE = analyse(answers({ moment: 'morning', caffeine: 'love' }));
 const HERBAL_PROFILE = analyse(answers({ caffeine: 'none' }));
-
-describe('textes', () => {
-  it('garde la mention d’affiliation et la précision sur les exemples telles que Phil les a fixées', () => {
-    expect(AFFILIATE_NOTICE).toBe(
-      'En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises.',
-    );
-    expect(EXAMPLES_NOTE).toBe(
-      'Exemples dont la composition correspond au type évoqué, présentés sans classement.',
-    );
-  });
-});
 
 describe('amazonUrl', () => {
   it('construit le lien amazon.fr avec le tag d’affiliation', () => {

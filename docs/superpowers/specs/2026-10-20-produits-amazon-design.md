@@ -41,7 +41,7 @@ export interface Product {
 - Une carte porte la clé `tea` du thé qu'elle illustre ; sous chaque carte de thé : un bloc « Exemples sur Amazon » avec nom, marque, une ligne de composition et un lien.
 - Liens `target="_blank"` `rel="sponsored noopener noreferrer"`, annoncés « (nouvel onglet) ».
 - Carte sans produit validé : aucun bloc, ni vide ni factice.
-- Dès qu'au moins un lien est affiché : mention visible « En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises. » et précision que ce sont des exemples dont la composition correspond, pas un classement.
+- Aucune mention d'affiliation ni précision sur les exemples n'est affichée : Phil l'a retirée le 21/10/2026 (elle figurait au départ : « En tant que Partenaire Amazon, je réalise un bénéfice sur les achats remplissant les conditions requises. »).
 - Le texte « Des types de thés et d'infusions, sans marque » de `result.html`, la meta description de `index.html` et la ligne du pied de page de `app.html` sont réécrits.
 - L'encart « Ceci n'est pas un avis médical » (caféine, grossesse, interactions, fer) reste.
 

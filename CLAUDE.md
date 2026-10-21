@@ -9,7 +9,7 @@ Questionnaire pour trouver le thé ou l'infusion adaptés à son besoin, constru
 - Le contenu est rédigé à la main et vérifié : un fait douteux ne vaut rien. Établi, traditionnel et débattu se distinguent (la camomille est « traditionnellement bue le soir », jamais « calmante »).
 - Aucun conseil médical, aucune promesse de santé (« bienfaits », « détox »… sont interdits, `profile.spec.ts` relit tous les textes). Une marque n'est citée que dans `src/app/tea/catalogue.ts` : composition lue chez le fabricant, lien Amazon validé par Phil, aucun prix, aucun classement, aucun « bienfaits ». `flavoured` : « avec de la saveur » (arôme, épice, fruit, fleur), un chai l'est toujours. « Vos réponses évoquent… », jamais « vous avez… ». L'encart « Ceci n'est pas un avis médical » reste sur le résultat : caféine, grossesse, interactions, fer.
 - Rien n'est enregistré : les réponses vivent en mémoire, dans `QuizService`.
-- Les liens vers les produits sont des liens d'affiliation Amazon (tag `phamelin-21`) : la mention d'affiliation est obligatoire, et le catalogue est validé par Phil avant tout ajout.
+- Les liens vers les produits sont des liens d'affiliation Amazon (tag `phamelin-21`) : aucune mention d'affiliation n'est affichée (décision de Phil du 21/10/2026), et le catalogue est validé par Phil avant tout ajout.
 - Règle de la caféine : « Aucune », ou le soir sans la rechercher, donne uniquement des infusions (rooibos, camomille, menthe, verveine, fruits) ; « Le moins possible » garde un thé, en infusion courte, avec une infusion en complément. Les infusions ne sont pas des thés : elles ne contiennent pas de théine.
 
 ## Commandes

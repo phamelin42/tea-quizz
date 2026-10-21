@@ -145,7 +145,7 @@ async function reachResultWithExamples(page: Page, keys = KEYS_WITH_TEA) {
   await expect(page.locator('app-examples').first()).toBeVisible();
 }
 
-test('le résultat montre des exemples sur Amazon, avec la mention d’affiliation une seule fois', async ({
+test('le résultat montre des exemples sur Amazon, sans mention d’affiliation affichée', async ({
   page,
 }) => {
   await reachResultWithExamples(page);
@@ -160,9 +160,7 @@ test('le résultat montre des exemples sur Amazon, avec la mention d’affiliati
     await expect(link).toHaveAttribute('target', '_blank');
   }
   await expect(page.getByText('Exemples sur Amazon').first()).toBeVisible();
-  await expect(
-    page.getByText('En tant que Partenaire Amazon, je réalise un bénéfice', { exact: false }),
-  ).toHaveCount(1);
+  await expect(page.getByText('Partenaire Amazon', { exact: false })).toHaveCount(0);
 });
 
 test('sans caféine, les exemples sont des infusions', async ({ page }) => {

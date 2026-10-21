@@ -1,5 +1,5 @@
 import { Component, input, ViewEncapsulation } from '@angular/core';
-import { amazonUrl, type Product } from '../tea/products';
+import { amazonUrl, type Example, isGearProduct } from '../tea/products';
 
 @Component({
   selector: 'app-examples',
@@ -9,10 +9,12 @@ import { amazonUrl, type Product } from '../tea/products';
   host: { class: 'app-examples' },
 })
 export class Examples {
-  readonly products = input.required<readonly Product[]>();
+  readonly products = input.required<readonly Example[]>();
+
+  protected readonly isGear = isGearProduct;
 
   /** Le seul endroit qui fabrique un lien : le tag d’affiliation ne se recopie nulle part. */
-  protected url(product: Product): string {
+  protected url(product: Example): string {
     return amazonUrl(product.asin);
   }
 }

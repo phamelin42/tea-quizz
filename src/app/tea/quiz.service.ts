@@ -1,6 +1,11 @@
 import { computed, inject, Service, signal } from '@angular/core';
 import { type Answers, analyse, labelHints, ritual, teas } from './profile';
-import { examplesFor, PRODUCT_CATALOGUE } from './products';
+import {
+  examplesFor,
+  gearExamplesFor,
+  PRODUCT_CATALOGUE,
+  PRODUCT_GEAR_CATALOGUE,
+} from './products';
 import { QUESTIONS } from './questions';
 
 export type Screen = 'home' | 'quiz' | 'analysis' | 'result';
@@ -18,6 +23,7 @@ export class QuizService {
   readonly questions = QUESTIONS;
 
   private readonly catalogue = inject(PRODUCT_CATALOGUE);
+  private readonly gearCatalogue = inject(PRODUCT_GEAR_CATALOGUE);
 
   private readonly screenState = signal<Screen>('home');
   private readonly indexState = signal(0);
@@ -45,7 +51,9 @@ export class QuizService {
       profile,
       teas: teas(profile).map((card) => ({
         ...card,
-        examples: examplesFor(card, profile, this.catalogue),
+        examples: card.gear
+          ? gearExamplesFor(card, this.gearCatalogue)
+          : examplesFor(card, profile, this.catalogue),
       })),
       ritual: ritual(profile),
       hints: labelHints(profile),

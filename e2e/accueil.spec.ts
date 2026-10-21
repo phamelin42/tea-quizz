@@ -163,6 +163,21 @@ test('le résultat montre des exemples sur Amazon, sans mention d’affiliation 
   await expect(page.getByText('Partenaire Amazon', { exact: false })).toHaveCount(0);
 });
 
+test('la carte du matériel propose des accessoires sur Amazon', async ({ page }) => {
+  await reachResultWithExamples(page);
+  const card = page.locator('article', { hasText: 'Le matériel' });
+  const links = card.locator('app-examples a');
+  expect(await links.count()).toBeGreaterThan(0);
+  for (const link of await links.all()) {
+    await expect(link).toHaveAttribute(
+      'href',
+      /^https:\/\/www\.amazon\.fr\/dp\/[A-Z0-9]{10}\?tag=phamelin-21$/,
+    );
+    await expect(link).toHaveAttribute('rel', /sponsored/);
+  }
+  await expect(card.getByText('Caractéristiques').first()).toBeVisible();
+});
+
 test('sans caféine, les exemples sont des infusions', async ({ page }) => {
   await reachResultWithExamples(page, KEYS_WITHOUT_CAFFEINE);
   const compositions = await page.locator('.app-examples__composition').allTextContents();

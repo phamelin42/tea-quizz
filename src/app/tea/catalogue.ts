@@ -1,9 +1,9 @@
-import type { Product } from './products';
+import type { GearProduct, Product } from './products';
 
 /*
  * Seuls les produits listés ici sont affichés : aucune marque n’apparaît ailleurs dans le site.
  * Les ASIN viennent de fiches amazon.fr vues le 2026-10-21, jamais devinés ; la composition est
- * celle lue sur la fiche du fabricant, dont l’adresse est dans `sourceUrl`. Au plus deux produits
+ * celle lue sur la fiche du fabricant, dont l’adresse est dans `sourceUrl`. Au plus trois produits
  * par type, de marques différentes, rangés par marque : l’ordre ne traduit aucun classement.
  * `validated` est la date de la proposition : Phil doit encore ouvrir et confirmer chaque lien.
  */
@@ -18,6 +18,29 @@ export const CATALOGUE: readonly Product[] = [
     ingredients: ['Green tea (Camellia sinensis)'],
     flavoured: false,
     sourceUrl: 'https://www.dammann.fr/en/sencha-fukuyu-box-of-25-cristal-sachets.html',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'englishteashop-green-01',
+    name: 'Thé vert sencha du Japon en sachets, bio',
+    brand: 'English Tea Shop',
+    tea: 'green',
+    asin: 'B00SFQIO7W',
+    ingredients: ['thé vert Sencha* (100%)'],
+    flavoured: false,
+    sourceUrl: 'https://www.englishteashop.fr/shop/u29182-the-vert-sencha-bio-20-sachets-2096',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'clipper-green-01',
+    name: 'Thé vert nature, bio, en sachets',
+    brand: 'Clipper',
+    tea: 'green',
+    asin: 'B011C4L3S0',
+    ingredients: ['Organically grown green tea'],
+    flavoured: false,
+    sourceUrl:
+      'https://shop.clipper-teas.com/products/clipper-organic-fairtrade-pure-green-tea-20-bags',
     validated: '2026-10-21',
   },
 
@@ -57,6 +80,28 @@ export const CATALOGUE: readonly Product[] = [
     sourceUrl: 'https://www.valleyoftea.com/collections/white-tea/products/whitepeony',
     validated: '2026-10-21',
   },
+  {
+    id: 'englishteashop-white-01',
+    name: 'Thé blanc de Ceylan en sachets, bio',
+    brand: 'English Tea Shop',
+    tea: 'white',
+    asin: 'B00C9V07U6',
+    ingredients: ['thé blanc* (100%)'],
+    flavoured: false,
+    sourceUrl: 'https://www.englishteashop.fr/shop/u29267-the-blanc-bio-20-sachets-2100',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'twinings-white-01',
+    name: 'Thé blanc nature en sachets',
+    brand: 'Twinings',
+    tea: 'white',
+    asin: 'B003VEE4YA',
+    ingredients: ['White tea (100%)'],
+    flavoured: false,
+    sourceUrl: 'https://twinings.co.uk/products/pure-white-tea-international-blend-20-envelopes',
+    validated: '2026-10-21',
+  },
 
   // Oolong
   {
@@ -72,6 +117,17 @@ export const CATALOGUE: readonly Product[] = [
     sourceUrl: 'https://chabiothe.fr/oolong/49-71-the-oolong-bio',
     validated: '2026-10-21',
   },
+  {
+    id: 'englishteashop-oolong-01',
+    name: 'Thé oolong en sachets, bio',
+    brand: 'English Tea Shop',
+    tea: 'oolong',
+    asin: 'B07TZRR8R1',
+    ingredients: ['thé Oolong* (100%)'],
+    flavoured: false,
+    sourceUrl: 'https://www.englishteashop.fr/shop/u57871-the-oolong-bio-20-sachets-2163',
+    validated: '2026-10-21',
+  },
 
   // Thé noir
   {
@@ -83,6 +139,28 @@ export const CATALOGUE: readonly Product[] = [
     ingredients: ['Black tea (Camellia sinensis)'],
     flavoured: false,
     sourceUrl: 'https://www.dammann.fr/en/darjeeling-24-sachets-cristal-suremballes.html',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'englishteashop-black-01',
+    name: 'Thé noir Darjeeling en sachets, bio',
+    brand: 'English Tea Shop',
+    tea: 'black',
+    asin: 'B018M755N4',
+    ingredients: ['thé noir Darjeeling* (100%)'],
+    flavoured: false,
+    sourceUrl: 'https://www.englishteashop.fr/shop/u40187-the-noir-darjeeling-bio-20-sachets-2132',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'twinings-black-01',
+    name: 'Thé noir de Ceylan en sachets',
+    brand: 'Twinings',
+    tea: 'black',
+    asin: 'B014JPJA0W',
+    ingredients: ['Thé noir du Sri Lanka'],
+    flavoured: false,
+    sourceUrl: 'https://twinings.fr/products/ceylan',
     validated: '2026-10-21',
   },
 
@@ -116,6 +194,48 @@ export const CATALOGUE: readonly Product[] = [
     sourceUrl: 'https://www.kusmitea.com/en/products/kashmir-tchai',
     validated: '2026-10-21',
   },
+  {
+    id: 'twinings-chai-01',
+    name: 'Thé noir aux épices de type chaï, sachets',
+    brand: 'Twinings',
+    tea: 'chai',
+    asin: 'B000MPQ5NE',
+    ingredients: [
+      'Black Tea (70%)',
+      'Natural Flavouring',
+      'Cloves (5%)',
+      'Cardamom (5%)',
+      'Natural Cinnamon Flavouring with other Natural Flavourings (4%)',
+      'Natural Ginger Flavouring with other Natural Flavourings (4%)',
+    ],
+    flavoured: true,
+    sourceUrl: 'https://twinings.co.uk/products/classic-chai-20-envelopes',
+    validated: '2026-10-21',
+  },
+
+  // Pu-erh
+  {
+    id: 'gaia-puerh-01',
+    name: 'Thé sombre pu-erh en sachets, bio',
+    brand: 'Les Jardins de Gaïa',
+    tea: 'puerh',
+    asin: 'B00CA6P8PO',
+    ingredients: ['Thé sombre*'],
+    flavoured: false,
+    sourceUrl: 'https://jardinsdegaia.com/the-sombre-bio-pu-er-nature-infusettes.html',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'dammann-puerh-01',
+    name: 'Thé sombre pu-erh en sachets',
+    brand: 'Dammann Frères',
+    tea: 'puerh',
+    asin: 'B086RYTLCR',
+    ingredients: ['Thé sombre'],
+    flavoured: false,
+    sourceUrl: 'https://www.dammann.fr/fr/the-sombre-pu-erh-24-sachets-suremballes.html',
+    validated: '2026-10-21',
+  },
 
   // Rooibos
   {
@@ -127,6 +247,30 @@ export const CATALOGUE: readonly Product[] = [
     ingredients: ['Rooibos'],
     flavoured: false,
     sourceUrl: 'https://twiningsusa.com/products/pure-rooibos',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'yogi-rooibos-01',
+    name: 'Infusion de rooibos aux épices (cannelle, gingembre, clou de girofle), bio, sachets',
+    brand: 'Yogi Tea',
+    tea: 'rooibos',
+    asin: 'B0H3Q4CYQH',
+    ingredients: [
+      'Rooibos* (70%)',
+      'cannelle* (11%)',
+      'gingembre* (4,5%)',
+      'caroube*',
+      'chicorée torréfiée*',
+      'cardamome*',
+      'clous de girofle* (1,5%)',
+      'poivre noir*',
+      'huile de cannelle*',
+      'huile de gingembre*',
+      'huile de cardamome*',
+      'extrait de vanille*',
+    ],
+    flavoured: true,
+    sourceUrl: 'https://yogi-life.com/fr-FR/product/rooibos-4012824402591',
     validated: '2026-10-21',
   },
 
@@ -153,6 +297,17 @@ export const CATALOGUE: readonly Product[] = [
     sourceUrl: 'https://twinings.co.uk/products/pure-camomile-20-tea-bags',
     validated: '2026-10-21',
   },
+  {
+    id: 'dammann-chamomile-01',
+    name: 'Infusion de camomille, sachets Cristal®',
+    brand: 'Dammann Frères',
+    tea: 'chamomile',
+    asin: 'B0D9BZY9YD',
+    ingredients: ['Chamomile'],
+    flavoured: false,
+    sourceUrl: 'https://www.dammann.fr/en/422-chamomile.html',
+    validated: '2026-10-21',
+  },
 
   // Menthe
   {
@@ -166,6 +321,17 @@ export const CATALOGUE: readonly Product[] = [
     sourceUrl: 'https://twinings.co.uk/products/pure-peppermint-20-tea-bags',
     validated: '2026-10-21',
   },
+  {
+    id: 'dammann-mint-01',
+    name: 'Infusion de menthe poivrée, 24 sachets Cristal® enveloppés',
+    brand: 'Dammann Frères',
+    tea: 'mint',
+    asin: 'B07M9FGNTD',
+    ingredients: ['peppermint (Mentha piperita)'],
+    flavoured: false,
+    sourceUrl: 'https://www.dammann.fr/en/menthe-poivree.html',
+    validated: '2026-10-21',
+  },
 
   // Verveine
   {
@@ -177,6 +343,17 @@ export const CATALOGUE: readonly Product[] = [
     ingredients: ['100% Verveine feuilles Bio'],
     flavoured: false,
     sourceUrl: 'https://www.pages.fr/fr/infusions/86-product-3398984220383.html',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'dammann-verbena-01',
+    name: 'Infusion de verveine, 24 sachets Cristal®',
+    brand: 'Dammann Frères',
+    tea: 'verbena',
+    asin: 'B01CTCIPBW',
+    ingredients: ['Verbena'],
+    flavoured: false,
+    sourceUrl: 'https://www.dammann.fr/en/verbena-24-wrapped-cristal-bags.html',
     validated: '2026-10-21',
   },
 
@@ -216,6 +393,161 @@ export const CATALOGUE: readonly Product[] = [
     ],
     flavoured: true,
     sourceUrl: 'https://twinings.fr/products/infusion-ayurveda-fraise-myrtille-grenade',
+    validated: '2026-10-21',
+  },
+];
+
+/** Le matériel de la carte « Le matériel » : mêmes règles que ci-dessus, sans composition. */
+export const GEAR_CATALOGUE: readonly GearProduct[] = [
+  // Infuseurs
+  {
+    id: 'finum-infuser-01',
+    name: 'Infuseur à thé à panier en acier inoxydable, taille M, avec couvercle',
+    brand: 'Finum',
+    gear: 'infuser',
+    asin: 'B000I68NCS',
+    details: [
+      'Micro-maille en acier inoxydable',
+      'Cadre en plastique résistant à la chaleur',
+      'Filtre de 2,9 pouces, le couvercle sert de coupelle d’égouttage',
+    ],
+    sourceUrl: 'https://www.finum.com/portfolio/brewing-basket-m/',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'finum-infuser-02',
+    name: 'Infuseur à thé à panier en acier inoxydable, taille L, avec couvercle',
+    brand: 'Finum',
+    gear: 'infuser',
+    asin: 'B002WB12V6',
+    details: [
+      'Micro-maille en acier inoxydable',
+      'Cadre en polypropylène',
+      'Filtre de 9,7 cm de haut, couvercle de 8,0 cm de diamètre',
+    ],
+    sourceUrl: 'https://www.finum.com/portfolio/brewing-basket-l/',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'pandatea-infuser-01',
+    name: 'Infuseur à thé à panier en acier inoxydable 304 pour tasse ou théière',
+    brand: 'Panda Tea',
+    gear: 'infuser',
+    asin: 'B0DP14Q35L',
+    details: [
+      'Acier inoxydable 304, mailles fines',
+      'Environ 9,5 x 8 x 9,5 cm',
+      'Rebord large pour tasses et théières',
+    ],
+    sourceUrl: 'https://pandatea.fr/products/passoire-a-the-en-inox',
+    validated: '2026-10-21',
+  },
+
+  // Fouets à matcha
+  {
+    id: 'origeens-whisk-01',
+    name: 'Fouet à matcha (chasen) en bambou, 100 brins',
+    brand: 'Origeens',
+    gear: 'whisk',
+    asin: 'B0CB4PZFTW',
+    details: ['Bambou, d’un seul morceau', '100 brins', '10 x 5,5 cm'],
+    sourceUrl: 'https://origeens.com/boutique/fouet-chasen-matcha-100-tiges/',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'aromandise-whisk-01',
+    name: 'Fouet à matcha (chasen) en bambou doré, 100 brins',
+    brand: 'Aromandise',
+    gear: 'whisk',
+    asin: 'B01N7WR9YD',
+    details: ['Bambou doré, d’un seul morceau', '100 brins'],
+    sourceUrl:
+      'https://www.aromandise.com/thes-et-tisanes-bio/430-fouet-a-matcha-chasen--3560465010404.html',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'matchaco-whisk-01',
+    name: 'Fouet à matcha (chasen) en bambou, 100 brins, hauteur 9 cm',
+    brand: 'Matcha & CO',
+    gear: 'whisk',
+    asin: 'B07P5NP45X',
+    details: ['Bambou', '100 pointes', 'Hauteur 9 cm, diamètre 7 cm'],
+    sourceUrl: 'https://matchandco.fr/acheter/fouet-bambou-chasen/',
+    validated: '2026-10-21',
+  },
+
+  // Carafes pour l’infusion à froid
+  {
+    id: 'orinko-carafe-01',
+    name: 'Carafe à infusion à froid de 1,6 L avec infuseur en acier inoxydable',
+    brand: 'ORINKO',
+    gear: 'carafe',
+    asin: 'B0FQJL4VF3',
+    details: ['Contenance 1,6 L', 'Infuseur en acier inoxydable', 'Couvercle hermétique'],
+    sourceUrl: 'https://www.amazon.fr/ORINKO-Carafe-Infusion-Froid-Infuseur/dp/B0FQJL4VF3',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'hario-carafe-01',
+    name: 'Bouteille à filtre pour infusion à froid, 300 ml',
+    brand: 'Hario',
+    gear: 'carafe',
+    asin: 'B01BM3FVK2',
+    details: ['Contenance 300 ml', 'Bouteille en verre avec filtre intégré'],
+    sourceUrl: 'https://www.amazon.fr/Hario-Froid-Filtre-Bouteille-300-ML/dp/B01BM3FVK2',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'zdzdz-carafe-01',
+    name: 'Carafe en verre borosilicate de 2 L avec infuseur et couvercle en acier inoxydable',
+    brand: 'Zdzdz',
+    gear: 'carafe',
+    asin: 'B07DW6ZJG2',
+    details: [
+      'Verre borosilicate',
+      'Contenance 2 L (2000 ml)',
+      'Infuseur et couvercle amovible en acier inoxydable',
+    ],
+    sourceUrl:
+      'https://www.amazon.fr/borosilicate-Pitcher-Bouteille-couvercle-inoxydable/dp/B07DW6ZJG2',
+    validated: '2026-10-21',
+  },
+
+  // Gaiwans
+  {
+    id: 'honeylive-gaiwan-01',
+    name: 'Gaiwan en porcelaine avec couvercle et soucoupe, 150 ml',
+    brand: 'honeylive',
+    gear: 'gaiwan',
+    asin: 'B07QHLJ94M',
+    details: [
+      'Porcelaine',
+      'Contenance d’usage 150 ml (200 ml à ras bord, fiche vue)',
+      'Hauteur 9,5 cm',
+    ],
+    sourceUrl: 'https://www.amazon.fr/Gaiwan-Tasse-porcelaine-Bleu-blanc/dp/B07QHLJ94M',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'honheam-gaiwan-01',
+    name: 'Gaiwan en porcelaine avec couvercle, 150 ml',
+    brand: 'HonHeam',
+    gear: 'gaiwan',
+    asin: 'B0BWDNL53R',
+    details: ['Porcelaine', 'Contenance 150 ml', 'Diamètre 9,5 cm'],
+    sourceUrl:
+      'https://www.amazon.fr/HonHeam-Phoenix-Porcelaine-Chinois-traditionnelle/dp/B0BWDNL53R',
+    validated: '2026-10-21',
+  },
+  {
+    id: 'xgteahhc-gaiwan-01',
+    name: 'Gaiwan en porcelaine avec filtre, 150 ml',
+    brand: 'XGTEAHHC',
+    gear: 'gaiwan',
+    asin: 'B0DM81GS1H',
+    details: ['Porcelaine', 'Contenance 150 ml', 'Avec filtre'],
+    sourceUrl:
+      'https://www.amazon.fr/XGTEAHHC-150-porcelaine-D%C3%A9coration-c%C3%A9r%C3%A9monie/dp/B0DM81GS1H',
     validated: '2026-10-21',
   },
 ];

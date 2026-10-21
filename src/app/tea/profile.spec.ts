@@ -1,7 +1,17 @@
 import { FAMILIES, GEARS, LABEL_TIPS, START_ADVICE, TEAS, type TeaKey } from './content';
 import { analyse, type Answers, gearFor, labelHints, ritual, teas } from './profile';
-import { CATALOGUE, catalogueDefects, examplesFor, mentionsBrand, type Product } from './products';
-import { FIXTURE_CATALOGUE } from './products.fixture';
+import {
+  CATALOGUE,
+  catalogueDefects,
+  examplesFor,
+  GEAR_CATALOGUE,
+  gearDefects,
+  gearExamplesFor,
+  type GearProduct,
+  mentionsBrand,
+  type Product,
+} from './products';
+import { FIXTURE_CATALOGUE, FIXTURE_GEAR_CATALOGUE } from './products.fixture';
 import { type QuestionId, QUESTIONS } from './questions';
 
 /** Réponses par valeur ; les questions non précisées prennent leur première option. */
@@ -35,6 +45,11 @@ const PROMISES =
 /** Ce qu’un produit affiche : son nom, sa marque et sa composition. */
 function catalogueTexts(catalogue: readonly Product[]): string[] {
   return catalogue.flatMap((item) => [item.name, item.brand, ...item.ingredients]);
+}
+
+/** Ce qu’un accessoire affiche : son nom, sa marque et ses caractéristiques. */
+function gearTexts(catalogue: readonly GearProduct[]): string[] {
+  return catalogue.flatMap((item) => [item.name, item.brand, ...item.details]);
 }
 
 describe('contenu', () => {
@@ -292,14 +307,19 @@ describe('thés et rituel', () => {
       ...Object.values(LABEL_TIPS).map((tip) => tip.why),
       ...Object.values(START_ADVICE),
     ];
-    const everyText = [...editorial, ...catalogueTexts(CATALOGUE)];
+    const everyText = [...editorial, ...catalogueTexts(CATALOGUE), ...gearTexts(GEAR_CATALOGUE)];
     const promises = everyText.filter((text) => PROMISES.test(text));
     expect(promises).toEqual([]);
 
     // Les marques ne vivent que dans le catalogue : aucun texte éditorial n’en cite, ni du vrai
     // catalogue ni de la fixture (les textes du catalogue lui-même citent évidemment leur marque).
     const branded = editorial.filter((text) =>
-      mentionsBrand(text, [...CATALOGUE, ...FIXTURE_CATALOGUE]),
+      mentionsBrand(text, [
+        ...CATALOGUE,
+        ...FIXTURE_CATALOGUE,
+        ...GEAR_CATALOGUE,
+        ...FIXTURE_GEAR_CATALOGUE,
+      ]),
     );
     expect(branded).toEqual([]);
   }, 120_000);
@@ -446,6 +466,22 @@ describe('exemples de produits', () => {
     // Un produit qui ne s'affiche jamais est un lien mort : on le nomme.
     expect(CATALOGUE.map((item) => item.id).filter((id) => !shown.has(id))).toEqual([]);
   }, 120_000);
+
+  it('montre chaque accessoire du catalogue livré sur la carte du matériel, pour au moins un profil', () => {
+    expect(GEAR_CATALOGUE.length).toBeGreaterThan(0);
+    expect(gearDefects(GEAR_CATALOGUE, CATALOGUE)).toEqual([]);
+    const shown = new Set<string>();
+    for (const profile of everyProfile()) {
+      for (const card of teas(profile)) {
+        for (const example of gearExamplesFor(card, GEAR_CATALOGUE)) shown.add(example.id);
+      }
+    }
+    expect(GEAR_CATALOGUE.map((item) => item.id).filter((id) => !shown.has(id))).toEqual([]);
+  }, 120_000);
+
+  it('ne laisse aucune promesse dans le nom, la marque ni les caractéristiques du matériel livré', () => {
+    expect(gearTexts(GEAR_CATALOGUE).filter((text) => PROMISES.test(text))).toEqual([]);
+  });
 
   it('ne laisse aucune promesse de santé dans le nom, la marque ni la composition du catalogue livré', () => {
     expect(CATALOGUE.length).toBeGreaterThan(0);

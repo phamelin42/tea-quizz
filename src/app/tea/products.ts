@@ -1,6 +1,6 @@
 import { InjectionToken } from '@angular/core';
-import { TEAS, type TeaKey } from './content';
-import { CATALOGUE } from './catalogue';
+import { GEARS, TEAS, type GearKey, type TeaKey } from './content';
+import { CATALOGUE, GEAR_CATALOGUE } from './catalogue';
 import { labelHints, type Profile, type TeaCard } from './profile';
 
 /** Défini ici seulement : le tag d’affiliation Partenaires Amazon du site. */
@@ -26,14 +26,41 @@ export interface Product {
   readonly validated: string;
 }
 
+/** Un accessoire (infuseur, fouet, carafe, gaiwan) : pas de composition, mais ce que le vendeur annonce. */
+export interface GearProduct {
+  readonly id: string;
+  readonly name: string;
+  readonly brand: string;
+  /** Le matériel illustré par la carte « Le matériel ». */
+  readonly gear: GearKey;
+  readonly asin: string;
+  /** Matière, dimensions, contenance : un fait court par entrée, tel que le fabricant ou le vendeur l’annonce. */
+  readonly details: readonly string[];
+  readonly sourceUrl: string;
+  /** Date de validation du lien par Phil (AAAA-MM-JJ). */
+  readonly validated: string;
+}
+
+/** Ce qu’une carte peut montrer sous elle : un thé ou un accessoire. */
+export type Example = Product | GearProduct;
+
+export function isGearProduct(item: Example): item is GearProduct {
+  return 'gear' in item;
+}
+
 /** Les données vivent dans `catalogue.ts` ; elles sont ré-exportées ici pour garder un seul point d’entrée. */
-export { CATALOGUE };
+export { CATALOGUE, GEAR_CATALOGUE };
 
 /** Jeton plutôt qu’import direct, pour que les tests fournissent leur propre catalogue. */
 export const PRODUCT_CATALOGUE = new InjectionToken<readonly Product[]>('PRODUCT_CATALOGUE', {
   providedIn: 'root',
   factory: () => CATALOGUE,
 });
+
+export const PRODUCT_GEAR_CATALOGUE = new InjectionToken<readonly GearProduct[]>(
+  'PRODUCT_GEAR_CATALOGUE',
+  { providedIn: 'root', factory: () => GEAR_CATALOGUE },
+);
 
 /**
  * Les thés dont la recette est un mélange : sans épices, ce ne serait pas un chai. Ils sont donc
@@ -159,6 +186,34 @@ export function catalogueDefects(catalogue: readonly Product[]): string[] {
   return defects;
 }
 
+/** Les règles de forme du matériel ; les ids sont uniques sur l’ensemble thés et matériel. */
+export function gearDefects(gear: readonly GearProduct[], teas: readonly Product[] = []): string[] {
+  const defects: string[] = [];
+  const seen = new Set(teas.map((item) => item.id));
+  for (const item of gear) {
+    const where = item.id;
+    if (seen.has(item.id)) defects.push(`${where} : id en double`);
+    seen.add(item.id);
+    if (!ASIN.test(item.asin)) defects.push(`${where} : ASIN invalide (${item.asin})`);
+    if (!item.sourceUrl.startsWith('https://')) defects.push(`${where} : source hors https`);
+    if (!DATE.test(item.validated) || Number.isNaN(Date.parse(item.validated))) {
+      defects.push(`${where} : date de validation invalide (${item.validated})`);
+    }
+    if (!Object.hasOwn(GEARS, item.gear))
+      defects.push(`${where} : matériel inconnu (${item.gear})`);
+    if (item.details.length === 0 || item.details.some((detail) => detail.trim() === '')) {
+      defects.push(`${where} : caractéristiques vides`);
+    }
+  }
+  return defects;
+}
+
+/** Au plus trois produits du matériel de la carte, dans l’ordre du catalogue. */
+export function gearExamplesFor(card: TeaCard, catalogue: readonly GearProduct[]): GearProduct[] {
+  if (!card.gear) return [];
+  return catalogue.filter((item) => item.gear === card.gear).slice(0, MAX_EXAMPLES);
+}
+
 /** Au plus trois produits du thé de la carte, filtrés selon les règles du profil, dans l’ordre du catalogue. */
 export function examplesFor(
   card: TeaCard,
@@ -175,7 +230,7 @@ export function examplesFor(
 }
 
 /** Les marques ne vivent que dans le catalogue : les textes éditoriaux n’en citent aucune. */
-export function mentionsBrand(text: string, catalogue: readonly Product[]): boolean {
+export function mentionsBrand(text: string, catalogue: readonly Example[]): boolean {
   const lower = text.toLowerCase();
   return catalogue.some((item) => item.brand !== '' && lower.includes(item.brand.toLowerCase()));
 }

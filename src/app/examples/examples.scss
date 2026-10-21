@@ -37,7 +37,8 @@
   box-shadow: var(--focus-ring);
 }
 .app-examples__brand,
-.app-examples__composition {
+.app-examples__composition,
+.app-examples__details {
   color: var(--ink-muted);
   font: 500 14px/22px var(--font-text);
   overflow-wrap: anywhere;

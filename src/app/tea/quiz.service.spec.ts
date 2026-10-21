@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { PRODUCT_CATALOGUE } from './products';
-import { FIXTURE_CATALOGUE } from './products.fixture';
+import { isGearProduct, PRODUCT_CATALOGUE, PRODUCT_GEAR_CATALOGUE } from './products';
+import { FIXTURE_CATALOGUE, FIXTURE_GEAR_CATALOGUE } from './products.fixture';
 import { QUESTIONS } from './questions';
 import { ANALYSIS_DELAY, ANSWER_DELAY, QuizService } from './quiz.service';
 
@@ -111,21 +111,49 @@ describe('QuizService : exemples de produits', () => {
   }
 
   it('n’attache aucun exemple tant que le catalogue est vide', () => {
-    TestBed.configureTestingModule({ providers: [{ provide: PRODUCT_CATALOGUE, useValue: [] }] });
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PRODUCT_CATALOGUE, useValue: [] },
+        { provide: PRODUCT_GEAR_CATALOGUE, useValue: [] },
+      ],
+    });
     const { teas } = resultOf(TestBed.inject(QuizService));
     expect(teas.length).toBeGreaterThan(0);
     expect(teas.every((card) => card.examples.length === 0)).toBe(true);
   });
 
-  it('attache à chaque carte de thé les produits de son type, et rien au matériel', () => {
+  it('attache à chaque carte de thé les produits de son type, et rien au matériel sans catalogue de matériel', () => {
     TestBed.configureTestingModule({
-      providers: [{ provide: PRODUCT_CATALOGUE, useValue: FIXTURE_CATALOGUE }],
+      providers: [
+        { provide: PRODUCT_CATALOGUE, useValue: FIXTURE_CATALOGUE },
+        { provide: PRODUCT_GEAR_CATALOGUE, useValue: [] },
+      ],
     });
     const { profile, teas } = resultOf(TestBed.inject(QuizService));
     const main = teas.find((card) => card.key === 'main')!;
     const gear = teas.find((card) => card.key === 'gear')!;
     expect(main.examples.length).toBeGreaterThan(0);
-    expect(main.examples.every((item) => item.tea === profile.tea)).toBe(true);
+    expect(main.examples.every((item) => !isGearProduct(item) && item.tea === profile.tea)).toBe(
+      true,
+    );
     expect(gear.examples).toEqual([]);
+  });
+
+  it('attache à la carte du matériel les accessoires de son matériel, et aucun thé', () => {
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: PRODUCT_CATALOGUE, useValue: FIXTURE_CATALOGUE },
+        { provide: PRODUCT_GEAR_CATALOGUE, useValue: FIXTURE_GEAR_CATALOGUE },
+      ],
+    });
+    const { teas } = resultOf(TestBed.inject(QuizService));
+    const gear = teas.find((card) => card.key === 'gear')!;
+    expect(gear.examples.length).toBeGreaterThan(0);
+    expect(gear.examples.every((item) => isGearProduct(item) && item.gear === gear.gear)).toBe(
+      true,
+    );
+    for (const card of teas.filter((candidate) => candidate.key !== 'gear')) {
+      expect(card.examples.some(isGearProduct), card.key).toBe(false);
+    }
   });
 });

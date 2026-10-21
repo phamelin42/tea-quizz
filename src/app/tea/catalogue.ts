@@ -47,17 +47,6 @@ export const CATALOGUE: readonly Product[] = [
 
   // Thé blanc
   {
-    id: 'chabiothe-white-01',
-    name: 'Thé blanc de Chine (Yunnan) en vrac, bio',
-    brand: 'Chabiothé',
-    tea: 'white',
-    asin: 'B07GDP6164',
-    ingredients: ['thé blanc Mao Feng - origine Chine, Yunnan (issu de l’agriculture biologique)'],
-    flavoured: false,
-    sourceUrl: 'https://chabiothe.fr/the-blanc/20-the-blanc-bio',
-    validated: '2026-10-21',
-  },
-  {
     id: 'valleyoftea-white-01',
     name: 'Thé blanc Bai Mu Dan en vrac',
     brand: 'Valley of Tea',
@@ -208,25 +197,6 @@ export const CATALOGUE: readonly Product[] = [
     ],
     flavoured: true,
     sourceUrl: 'https://www.les2marmottes.com/products/melee-de-fruits-cassis-framboise-pomme',
-    validated: '2026-10-21',
-  },
-  {
-    id: 'twinings-fruit-01',
-    name: 'Infusion à l’hibiscus aromatisée fraise, myrtille et grenade, sachets',
-    brand: 'Twinings',
-    tea: 'fruit',
-    asin: 'B0FD3YN7WR',
-    ingredients: [
-      'Hibiscus',
-      'feuilles de mûre',
-      'citronnelle',
-      'arôme naturel (7%)',
-      'réglisse',
-      'arôme naturel de myrtille avec d’autres arômes naturels (4%)',
-      'arôme naturel de grenade avec d’autres arômes naturels (1%)',
-    ],
-    flavoured: true,
-    sourceUrl: 'https://twinings.fr/products/infusion-ayurveda-fraise-myrtille-grenade',
     validated: '2026-10-21',
   },
 ];
